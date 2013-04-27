@@ -1,4 +1,6 @@
 .DS_Store
+.DS_Store?
+Thumbs.db
 
 client/[Ll]ibrary/
 client/[Tt]emp/
@@ -21,3 +23,5 @@ client/build
 !client/Library/metadata
 !client/Library/previews
 !client/Library/guidmapper
+!client/Library/*.asset
+!client/Libaray/metadata
