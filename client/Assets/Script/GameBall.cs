@@ -8,7 +8,6 @@ public class GameBall : MonoBehaviour {
 	bool is_col = false;
 	public bool col_with_character = false;
 	public bool is_spiked = false;
-	public int spike_col_count = 0;
 	void OnCollisionEnter(Collision col){
 		if(!is_col){
 			is_col = true;
@@ -20,13 +19,13 @@ public class GameBall : MonoBehaviour {
 				
 				if(con.otherCollider.name.Equals("Player")&&!col_with_character){
 					col_with_character = true;
-					if(is_spiked){
+					/*if(is_spiked){
 						spike_col_count ++;
 						if(spike_col_count > 1){
 							is_spiked = false;
 							spike_col_count = 0;
 						}
-					}
+					}*/
 				}
 			}
  		}else return;	

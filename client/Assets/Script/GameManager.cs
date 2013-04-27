@@ -8,8 +8,7 @@ public class GameManager : MonoBehaviour {
 	GameBall ball;
 	Vector3 ball_pos;
 	Vector3 user1_pos;
-	float touch_delay = 0;
-	bool touch_once = false;
+	int spike_col_count = 0;
 	
 	// Use this for initialization
 	void Start () {
@@ -17,24 +16,33 @@ public class GameManager : MonoBehaviour {
 		ball = GameObject.Find("Ball").GetComponent<GameBall>();
 	}
 	
+	Vector3 SetSpikePower(Vector3 direction, float power){
+		float scala = Mathf.Sqrt((direction.x*direction.x)+(direction.y*direction.y));
+		return new Vector3(power * direction.x / scala, power * direction.y / scala, 0);
+	}
+	
 	// Update is called once per frame
 	void Update () {
 		if(ball.col_with_character){
 			ball.transform.rigidbody.velocity += new Vector3(user_1.vel_x/8,user_1.vel_y/4);
 			ball.col_with_character = false;
+			Vector3 touch_char = user_1.col.center+new Vector3(0,5,0);
+			Vector3 ball_vel = ball.vel;	
+			Vector3 force = touch_char - ball.transform.localPosition;
 			if(user_1.shoot_pressed){
 				user_1.shoot_pressed = false;
 				ball.is_spiked = true;
-				ball.spike_col_count = 1;
-				Vector3 touch_char = user_1.col.center+new Vector3(0,5,0);
-				Vector3 ball_vel = ball.vel;
-				Vector3 spike_force = touch_char - ball.transform.localPosition;
-				spike_force = new Vector3(spike_force.x/1000,spike_force.y/1000,spike_force.z);
+				spike_col_count = 1;
 				
-				ball.ball.rigidbody.AddForce(spike_force);
-				if(ball.BallSpeed()>1.2f)
-					ball.SetBallSpeed(1.2f);
-				Debug.Log(ball.BallSpeed());
+				ball.rigidbody.velocity = SetSpikePower(force,2);
+				
+			}
+			if(ball.is_spiked){
+				spike_col_count ++;
+				if(ball.spike_col_count > 1){
+					ball.is_spiked = false;
+					spike_col_count = 0;
+				}
 			}
 		}
 	}
