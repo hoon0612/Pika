@@ -19,11 +19,11 @@ Required Tools
 
 - Homepage : https://github.com/dcodeIO/ProtoBuf.js
 
-- Install  : "npm install protobufjs"
+- Install  : "npm install -g protobufjs"
 
-4. Coffeescript
+4. Iced Coffee Script
 
-- Homepage : http://coffeescript.org/
+- Homepage : http://maxtaco.github.io/coffee-script/ ( http://coffeescript.org/ )
 
-- Install  : sudo npm install -g coffee-script
+- Install  : npm install -g iced-coffee-script
  
