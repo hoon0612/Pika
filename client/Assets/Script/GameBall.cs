@@ -11,7 +11,6 @@ public class GameBall : MonoBehaviour {
 	void OnCollisionEnter(Collision col){
 		if(!is_col){
 			is_col = true;
-			Debug.Log(spike_col_count);
 			
 			foreach(ContactPoint con in col.contacts){
 				//Debug.Log(con.otherCollider.name);

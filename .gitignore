@@ -29,3 +29,4 @@ client/build
 !client/Library/unity editor resources
 !client/Library/assetservercachev3
 !client/Library/AssetVersioning.db
+!client/Library/ScriptAssemblies/
