@@ -7,9 +7,8 @@ public class Player : MonoBehaviour {
 	UISprite player_sprite;
 	
 	private tk2dAnimatedSprite player_animation;
+	public bool is_jumping = false;
 	bool motion_change = false;
-	int motion_turn = 1;
-	bool motion_upside = true;
 	public bool shoot_pressed = false;
 	public CapsuleCollider col;
 	float walk_speed = 2.5f;
@@ -21,7 +20,8 @@ public class Player : MonoBehaviour {
 	public float vel_x, vel_y;
 	
 	Dictionary<string, string> player_aspects = new Dictionary<string, string>();
-	enum PlayerStatus{
+	enum PlayerStatus
+	{
 		None,
 		Walking, 
 		Jumping,
@@ -32,7 +32,8 @@ public class Player : MonoBehaviour {
 	} 
 	PlayerStatus playerStatus;
 	
-	IEnumerator WakeUp(){
+	IEnumerator WakeUp()
+	{
 		playerStatus = PlayerStatus.None;
 		yield return new WaitForSeconds(0.2f);
 		if(player.transform.FindChild("pikachu").localRotation.y == 0)
@@ -43,8 +44,19 @@ public class Player : MonoBehaviour {
 		motion_change = false;
 	}
 	
+	IEnumerator SetSpikeFalse()
+	{
+		yield return new WaitForSeconds(0.15f);	
+		shoot_pressed = false;
+	}
+	
+	void OnTriggerEnter(){
+		Debug.Log("aa");
+	}
+	
 	// Use this for initialization
-	void Start () {
+	void Start () 
+	{
 		player = this.gameObject;
 		col = player.GetComponent<CapsuleCollider>();
 		player_sprite = player.transform.FindChild("player").GetComponent<UISprite>();
@@ -55,94 +67,121 @@ public class Player : MonoBehaviour {
 	}
 	
 	// Update is called once per frame
-	void Update () {
-		if(!playerStatus.Equals(PlayerStatus.None)){
-			if(playerStatus.Equals(PlayerStatus.Walking)&&!motion_change){
+	void Update () 
+	{
+		if(!playerStatus.Equals(PlayerStatus.None))
+		{
+			if(playerStatus.Equals(PlayerStatus.Walking)&&!motion_change)
+			{
 				player_animation.Play("Idle");
 				motion_change = true;
 			}
-			if(Input.GetKey("left")&&!playerStatus.Equals(PlayerStatus.LeftSliding)&&!playerStatus.Equals(PlayerStatus.RightSliding)){
-				if(Input.GetKey("space")&&!playerStatus.Equals(PlayerStatus.Jumping)){
+			if(Input.GetKey("left")&&!playerStatus.Equals(PlayerStatus.LeftSliding)&&!playerStatus.Equals(PlayerStatus.RightSliding))
+			{
+				if(Input.GetKey("space")&&!playerStatus.Equals(PlayerStatus.Jumping))
+				{
 					playerStatus = PlayerStatus.LeftSliding;
 					motion_change = false;
 					vel_x = -sliding_x_speed;
 					vel_y = sliding_y_speed;
 				}
-				else{
+				else
+				{
 					vel_x = -walk_speed;
 					player.transform.localPosition += new Vector3(vel_x,0f,0f);		
-					if(player.transform.localPosition.x <= 27.5f){
+					if(player.transform.localPosition.x <= 27.5f)
+					{
 						player.transform.localPosition = new Vector3(27.5f, player.transform.localPosition.y, player.transform.localPosition.z);
 					}
 				}
-			}else if(Input.GetKey("right")&&!playerStatus.Equals(PlayerStatus.LeftSliding)&&!playerStatus.Equals(PlayerStatus.RightSliding)){
-				if(Input.GetKey("space")&&!playerStatus.Equals(PlayerStatus.Jumping)){
+			}else if(Input.GetKey("right")&&!playerStatus.Equals(PlayerStatus.LeftSliding)&&!playerStatus.Equals(PlayerStatus.RightSliding))
+			{
+				if(Input.GetKey("space")&&!playerStatus.Equals(PlayerStatus.Jumping))
+				{
 					playerStatus = PlayerStatus.RightSliding;
 					motion_change = false;
 					vel_x = sliding_x_speed;
 					vel_y = sliding_y_speed;
 					player.transform.FindChild("pikachu").localRotation = Quaternion.Euler(new Vector3(0,0,0));
 				}
-				else{
+				else
+				{
 					vel_x = walk_speed;
 					player.transform.localPosition += new Vector3(vel_x,0f,0f);		
-					if(player.transform.localPosition.x >= 205f){
+					if(player.transform.localPosition.x >= 205f)
+					{
 						player.transform.localPosition = new Vector3(205f, player.transform.localPosition.y, player.transform.localPosition.z);
 					}
 				}
 			}
 			
-			if(Input.GetKey("up")&&!playerStatus.Equals(PlayerStatus.Jumping)&&!playerStatus.Equals(PlayerStatus.LeftSliding)&&!playerStatus.Equals(PlayerStatus.RightSliding)) {
+			if(Input.GetKey("up")&&!playerStatus.Equals(PlayerStatus.Jumping)&&!playerStatus.Equals(PlayerStatus.LeftSliding)&&!playerStatus.Equals(PlayerStatus.RightSliding)) 
+			{
 				playerStatus = PlayerStatus.Jumping;
 				vel_y = jump_speed;
 				motion_change = false;
+				is_jumping = true;
 			}
 			
-			if(playerStatus.Equals(PlayerStatus.Jumping)){
-				if(!motion_change){
+			if(playerStatus.Equals(PlayerStatus.Jumping))
+			{
+				if(!motion_change)
+				{
 					motion_change = true;
 					player_animation.Play("Jump");
 				}
 				player.transform.localPosition += new Vector3(0f, vel_y,0f);
 				vel_y -= jump_reduce;
-				if(player.transform.localPosition.y <= -80f){
+				if(player.transform.localPosition.y <= -80f)
+				{
 					player.transform.localPosition = new Vector3(player.transform.localPosition.x, -80f, player.transform.localPosition.z);
 					vel_y = 0;
 					playerStatus = PlayerStatus.Walking;
 					motion_change = false;
+					is_jumping = false;
 				}
-				if(Input.GetKeyDown("space")){
+				if(Input.GetKeyDown("space"))
+				{
 					shoot_pressed = true;
+					StartCoroutine(SetSpikeFalse());
 				}
 			}
 		
-			else if(playerStatus.Equals(PlayerStatus.LeftSliding)){
-				if(!motion_change){
+			else if(playerStatus.Equals(PlayerStatus.LeftSliding))
+			{
+				if(!motion_change)
+				{
 					motion_change = true;
 					player_animation.Play("Slide");
 				}
 				player.transform.localPosition += new Vector3(vel_x, vel_y, 0f);
 				vel_y -= jump_reduce;
-				if(player.transform.localPosition.y <= -80f){
+				if(player.transform.localPosition.y <= -80f)
+				{
 					player.transform.localPosition = new Vector3(player.transform.localPosition.x, -80f, player.transform.localPosition.z);
 					StartCoroutine(WakeUp());
 				}
-				if(player.transform.localPosition.x <= 27.5f){
+				if(player.transform.localPosition.x <= 27.5f)
+				{
 					player.transform.localPosition = new Vector3(27.5f, player.transform.localPosition.y, player.transform.localPosition.z);
 				}
 			}
-			else if(playerStatus.Equals(PlayerStatus.RightSliding)){
-				if(!motion_change){
+			else if(playerStatus.Equals(PlayerStatus.RightSliding))
+			{
+				if(!motion_change)
+				{
 					motion_change = true;
 					player_animation.Play("Slide");
 				}
 				player.transform.localPosition += new Vector3(vel_x, vel_y, 0f);
 				vel_y = vel_y - jump_reduce;
-				if(player.transform.localPosition.y <= -80f){
+				if(player.transform.localPosition.y <= -80f)
+				{
 					player.transform.localPosition = new Vector3(player.transform.localPosition.x, -80f, player.transform.localPosition.z);
 					StartCoroutine(WakeUp());
 				}
-				if(player.transform.localPosition.x >= 205f){
+				if(player.transform.localPosition.x >= 205f)
+				{
 					player.transform.localPosition = new Vector3(205f, player.transform.localPosition.y, player.transform.localPosition.z);
 				}
 			}	

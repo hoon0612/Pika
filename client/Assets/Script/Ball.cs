@@ -31,7 +31,22 @@ public class Ball : MonoBehaviour {
 	}
 	
 	void OnTriggerEnter(Collider col){
-		Debug.Log("xx");
+		if(col.name.Equals("Player")&&!trigger_col){
+			vel_x = -vel_x + col.gameObject.GetComponent<Player>().vel_x;
+			vel_y = -vel_y + col.gameObject.GetComponent<Player>().vel_y;
+			trigger_col = true;
+		}
+	}
+	
+	
+	void OnTriggerStay(Collider col){
+		if(trigger_col){
+			
+		}
+	}
+	
+	void OnTriggerExit(Collider col){
+		trigger_col = false;
 	}
 	
 	// Use this for initialization
@@ -48,29 +63,10 @@ public class Ball : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		/*pos = ball.transform.localPosition;
-		vel = ball.transform.rigidbody.velocity;			
-		if(pos.x <= -196f){
-			ball.transform.rigidbody.velocity = new Vector3(vel.x*(-1),vel.y,vel.z);
-			ball.transform.localPosition = new Vector3(-196f,pos.y,pos.z);
-		
-		}else if(pos.x >= 196f){
-			ball.transform.rigidbody.velocity = new Vector3(vel.x*(-1),vel.y,vel.z);
-			ball.transform.localPosition = new Vector3(196f,pos.y,pos.z);
-		}
-		
-		if(pos.y <= -80f){
-			ball.transform.rigidbody.velocity = new Vector3(vel.x,vel.y*(-1),vel.z);
-			ball.transform.localPosition = new Vector3(pos.x,-80f,pos.z);
-		}else if(pos.y >= 133f){
-			ball.transform.rigidbody.velocity = new Vector3(vel.x,vel.y*(-1),vel.z);
-			ball.transform.localPosition = new Vector3(pos.x,133f,pos.z);
-		}
-		if(is_shooted){
-			ball.transform.rigidbody.velocity = new Vector3(vel.x * 4f, vel.y * 4f , vel.z);
-			is_shooted = false;
-			trigger_col = true;
-		}*/
+		if(vel_x > 5.5f) vel_x = 5.5f;
+		if(vel_x < -5.5f) vel_x = -5.5f;
+		if(vel_y > 5.5f) vel_y = 5.5f;
+		if(vel_y < -5.5f) vel_y = -5.5f;
 		ball.transform.localPosition += new Vector3(vel_x,vel_y,0f);
 		vel_y+=gravity;
 		pos = ball.transform.localPosition;
@@ -93,17 +89,17 @@ public class Ball : MonoBehaviour {
 		if(pos.x >= 14f && pos.x <= 18f && pos.y <= 6.5f){
 			vel_x = -vel_x;
 			ball.transform.localPosition = new Vector3(18f, ball.transform.localPosition.y,ball.transform.localPosition.z);
-			Debug.Log("a");
+			
 		}
 		else if(pos.x <= -14f && pos.x >= -18f && pos.y <= 6.5f){
 			vel_x = -vel_x;
 			ball.transform.localPosition = new Vector3(-18f, ball.transform.localPosition.y,ball.transform.localPosition.z);
-			Debug.Log("ab");
+			
 		}
 		else if(pos.x < 14f && pos.x > -14 && pos.y <= 6.5f){
 			vel_y = -vel_y;
 			ball.transform.localPosition = new Vector3(ball.transform.localPosition.x, 10f ,ball.transform.localPosition.z);
-			Debug.Log("abc");
+			
 		}
 	}
 		
