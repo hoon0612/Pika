@@ -1,0 +1,8 @@
+message Control {
+  required string name = 1;
+  required int32 time  = 2;
+  required float loc_x = 3;
+  required float loc_y = 4;
+  optional float vel_x = 5;
+  optional float vel_y = 6;
+}
