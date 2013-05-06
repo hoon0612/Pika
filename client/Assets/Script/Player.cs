@@ -67,7 +67,7 @@ public class Player : MonoBehaviour {
 	}
 	
 	// Update is called once per frame
-	void Update () 
+	void FixedUpdate () 
 	{
 		if(!playerStatus.Equals(PlayerStatus.None))
 		{
@@ -76,6 +76,7 @@ public class Player : MonoBehaviour {
 				player_animation.Play("Idle");
 				motion_change = true;
 			}
+			if(!Input.anyKey) vel_x = 0;
 			if(Input.GetKey("left")&&!playerStatus.Equals(PlayerStatus.LeftSliding)&&!playerStatus.Equals(PlayerStatus.RightSliding))
 			{
 				if(Input.GetKey("space")&&!playerStatus.Equals(PlayerStatus.Jumping))
@@ -89,9 +90,9 @@ public class Player : MonoBehaviour {
 				{
 					vel_x = -walk_speed;
 					player.transform.localPosition += new Vector3(vel_x,0f,0f);		
-					if(player.transform.localPosition.x <= 27.5f)
+					if(player.transform.localPosition.x <= 30f)
 					{
-						player.transform.localPosition = new Vector3(27.5f, player.transform.localPosition.y, player.transform.localPosition.z);
+						player.transform.localPosition = new Vector3(30f, player.transform.localPosition.y, player.transform.localPosition.z);
 					}
 				}
 			}else if(Input.GetKey("right")&&!playerStatus.Equals(PlayerStatus.LeftSliding)&&!playerStatus.Equals(PlayerStatus.RightSliding))
@@ -153,6 +154,7 @@ public class Player : MonoBehaviour {
 				{
 					motion_change = true;
 					player_animation.Play("Slide");
+					
 				}
 				player.transform.localPosition += new Vector3(vel_x, vel_y, 0f);
 				vel_y -= jump_reduce;
@@ -161,9 +163,9 @@ public class Player : MonoBehaviour {
 					player.transform.localPosition = new Vector3(player.transform.localPosition.x, -80f, player.transform.localPosition.z);
 					StartCoroutine(WakeUp());
 				}
-				if(player.transform.localPosition.x <= 27.5f)
+				if(player.transform.localPosition.x <= 30f)
 				{
-					player.transform.localPosition = new Vector3(27.5f, player.transform.localPosition.y, player.transform.localPosition.z);
+					player.transform.localPosition = new Vector3(30f, player.transform.localPosition.y, player.transform.localPosition.z);
 				}
 			}
 			else if(playerStatus.Equals(PlayerStatus.RightSliding))

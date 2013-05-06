@@ -31,9 +31,11 @@ public class Ball : MonoBehaviour {
 	}
 	
 	void OnTriggerEnter(Collider col){
+		Debug.Log("col!");
 		if(col.name.Equals("Player")&&!trigger_col){
-			vel_x = -vel_x + col.gameObject.GetComponent<Player>().vel_x;
-			vel_y = -vel_y + col.gameObject.GetComponent<Player>().vel_y;
+			Player p = col.gameObject.GetComponent<Player>();
+			vel_x = vel_x/4 + p.vel_x/2 + DirVectorElement(ball.transform.localPosition.x, p.transform.localPosition.x);
+			vel_y = -vel_y + p.vel_y/2 + DirVectorElement(ball.transform.localPosition.y, p.transform.localPosition.y);
 			trigger_col = true;
 		}
 	}
@@ -49,6 +51,10 @@ public class Ball : MonoBehaviour {
 		trigger_col = false;
 	}
 	
+	float DirVectorElement(float ball, float player){
+		return (ball-player)/10;
+	}
+	
 	// Use this for initialization
 	void Start () {
 		//gravity = 2.5f;
@@ -57,16 +63,17 @@ public class Ball : MonoBehaviour {
 		pos = ball.transform.localPosition;
 		
 		vel_x = 0f;
-		vel_y = -1.5f;
-		gravity = -0.05f;
+		vel_y = -2.5f;
+		gravity = -0.1f;
 	}
 	
 	// Update is called once per frame
 	void Update () {
-		if(vel_x > 5.5f) vel_x = 5.5f;
-		if(vel_x < -5.5f) vel_x = -5.5f;
-		if(vel_y > 5.5f) vel_y = 5.5f;
-		if(vel_y < -5.5f) vel_y = -5.5f;
+		if(vel_x > 2.5f) vel_x = 2.5f;
+		if(vel_x < -2.5f) vel_x = -2.5f;
+		if(vel_y > 6f) vel_y = 6f;
+		if(vel_y < -6f) vel_y = -6f;
+		
 		ball.transform.localPosition += new Vector3(vel_x,vel_y,0f);
 		vel_y+=gravity;
 		pos = ball.transform.localPosition;
@@ -83,7 +90,7 @@ public class Ball : MonoBehaviour {
 			ball.transform.localPosition = new Vector3(ball.transform.localPosition.x, -80f, ball.transform.localPosition.z);
 		}
 		if(pos.y >= 133f){
-			vel_y = -1* vel_y;
+			vel_y = -0.45f* vel_y;
 			ball.transform.localPosition = new Vector3(ball.transform.localPosition.x, 133f, ball.transform.localPosition.z);
 		}
 		if(pos.x >= 14f && pos.x <= 18f && pos.y <= 6.5f){

@@ -1,6 +1,16 @@
 ﻿<Properties>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.Workbench />
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Script/GameBall.cs">
+    <Files>
+      <File FileName="Assets/Script/GameBall.cs" Line="1" Column="1" />
+      <File FileName="Assets/Script/GameManager.cs" Line="1" Column="1" />
+      <File FileName="Assets/Script/Player.cs" Line="1" Column="1" />
+      <File FileName="Assets/Script/DontGoThroughThings.cs" Line="1" Column="1" />
+      <File FileName="Assets/Script/NotPenetrateThings.cs" Line="1" Column="1" />
+      <File FileName="Assets/Script/GameManager_2.cs" Line="1" Column="1" />
+      <File FileName="Assets/Script/Ball.cs" Line="1" Column="1" />
+    </Files>
+  </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore />
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
