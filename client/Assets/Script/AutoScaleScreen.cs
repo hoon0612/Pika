@@ -10,7 +10,7 @@ public class AutoScaleScreen : MonoBehaviour {
 	public int baseHeight = 960; 
 	public bool  turnOn = true;
 	
-	void Awake () {
+	void Start () {
 		
 		if(!turnOn) return;
 		
@@ -43,11 +43,6 @@ public class AutoScaleScreen : MonoBehaviour {
 			Debug.Log ("Setting new UI height to " + newHeight);
 		}
 	}
-	
-	void Start () {
-	
-	}
-	
 	// Update is called once per frame
 	void Update () {
 	

@@ -3,13 +3,15 @@ using System.Collections;
 
 public class GameManager_2 : MonoBehaviour {
 	Ball ball;
-	Player P1;
+	Player1 P1;
+	Player2 P2;
 	float dist_p1;
 	float dist_p2;
 	// Use this for initialization
 	void Start () {
 		ball = GameObject.Find("Ball").GetComponent<Ball>();
-		P1 = GameObject.Find("Player").GetComponent<Player>();
+		P1 = GameObject.Find("Player1").GetComponent<Player1>();
+		P2 = GameObject.Find("Player2").GetComponent<Player2>();
 	}
 	
 	// Update is called once per frame

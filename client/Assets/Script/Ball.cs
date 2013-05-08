@@ -32,10 +32,22 @@ public class Ball : MonoBehaviour {
 	
 	void OnTriggerEnter(Collider col){
 		Debug.Log("col!");
-		if(col.name.Equals("Player")&&!trigger_col){
-			Player p = col.gameObject.GetComponent<Player>();
+		if(col.name.Equals("Player1")&&!trigger_col){
+			Player1 p = col.gameObject.GetComponent<Player1>();
 			vel_x = vel_x/4 + p.vel_x/2 + DirVectorElement(ball.transform.localPosition.x, p.transform.localPosition.x);
-			vel_y = -vel_y + p.vel_y/2 + DirVectorElement(ball.transform.localPosition.y, p.transform.localPosition.y);
+			if(ball.transform.localPosition.y < p.transform.localPosition.y)
+				vel_y = -vel_y + p.vel_y/2;
+			else
+				vel_y = -vel_y + p.vel_y/2 + DirVectorElement(ball.transform.localPosition.y, p.transform.localPosition.y);
+			trigger_col = true;
+		}
+		else if(col.name.Equals("Player2")&&!trigger_col){
+			Player2 p = col.gameObject.GetComponent<Player2>();
+			vel_x = vel_x/4 + p.vel_x/2 + DirVectorElement(ball.transform.localPosition.x, p.transform.localPosition.x);
+			if(ball.transform.localPosition.y < p.transform.localPosition.y)
+				vel_y = -vel_y + p.vel_y/2;
+			else
+				vel_y = -vel_y + p.vel_y/2 + DirVectorElement(ball.transform.localPosition.y, p.transform.localPosition.y);
 			trigger_col = true;
 		}
 	}
@@ -68,7 +80,7 @@ public class Ball : MonoBehaviour {
 	}
 	
 	// Update is called once per frame
-	void Update () {
+	void FixedUpdate () {
 		if(vel_x > 2.5f) vel_x = 2.5f;
 		if(vel_x < -2.5f) vel_x = -2.5f;
 		if(vel_y > 6f) vel_y = 6f;
