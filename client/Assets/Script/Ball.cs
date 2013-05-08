@@ -31,7 +31,40 @@ public class Ball : MonoBehaviour {
 	}
 	
 	void OnTriggerEnter(Collider col){
-		Debug.Log("xx");
+		Debug.Log("col!");
+		if(col.name.Equals("Player1")&&!trigger_col){
+			Player1 p = col.gameObject.GetComponent<Player1>();
+			vel_x = vel_x/4 + p.vel_x/2 + DirVectorElement(ball.transform.localPosition.x, p.transform.localPosition.x);
+			if(ball.transform.localPosition.y < p.transform.localPosition.y)
+				vel_y = -vel_y + p.vel_y/2;
+			else
+				vel_y = -vel_y + p.vel_y/2 + DirVectorElement(ball.transform.localPosition.y, p.transform.localPosition.y);
+			trigger_col = true;
+		}
+		else if(col.name.Equals("Player2")&&!trigger_col){
+			Player2 p = col.gameObject.GetComponent<Player2>();
+			vel_x = vel_x/4 + p.vel_x/2 + DirVectorElement(ball.transform.localPosition.x, p.transform.localPosition.x);
+			if(ball.transform.localPosition.y < p.transform.localPosition.y)
+				vel_y = -vel_y + p.vel_y/2;
+			else
+				vel_y = -vel_y + p.vel_y/2 + DirVectorElement(ball.transform.localPosition.y, p.transform.localPosition.y);
+			trigger_col = true;
+		}
+	}
+	
+	
+	void OnTriggerStay(Collider col){
+		if(trigger_col){
+			
+		}
+	}
+	
+	void OnTriggerExit(Collider col){
+		trigger_col = false;
+	}
+	
+	float DirVectorElement(float ball, float player){
+		return (ball-player)/10;
 	}
 	
 	// Use this for initialization
@@ -42,35 +75,17 @@ public class Ball : MonoBehaviour {
 		pos = ball.transform.localPosition;
 		
 		vel_x = 0f;
-		vel_y = -1.5f;
-		gravity = -0.05f;
+		vel_y = -2.5f;
+		gravity = -0.1f;
 	}
 	
 	// Update is called once per frame
-	void Update () {
-		/*pos = ball.transform.localPosition;
-		vel = ball.transform.rigidbody.velocity;			
-		if(pos.x <= -196f){
-			ball.transform.rigidbody.velocity = new Vector3(vel.x*(-1),vel.y,vel.z);
-			ball.transform.localPosition = new Vector3(-196f,pos.y,pos.z);
+	void FixedUpdate () {
+		if(vel_x > 2.5f) vel_x = 2.5f;
+		if(vel_x < -2.5f) vel_x = -2.5f;
+		if(vel_y > 6f) vel_y = 6f;
+		if(vel_y < -6f) vel_y = -6f;
 		
-		}else if(pos.x >= 196f){
-			ball.transform.rigidbody.velocity = new Vector3(vel.x*(-1),vel.y,vel.z);
-			ball.transform.localPosition = new Vector3(196f,pos.y,pos.z);
-		}
-		
-		if(pos.y <= -80f){
-			ball.transform.rigidbody.velocity = new Vector3(vel.x,vel.y*(-1),vel.z);
-			ball.transform.localPosition = new Vector3(pos.x,-80f,pos.z);
-		}else if(pos.y >= 133f){
-			ball.transform.rigidbody.velocity = new Vector3(vel.x,vel.y*(-1),vel.z);
-			ball.transform.localPosition = new Vector3(pos.x,133f,pos.z);
-		}
-		if(is_shooted){
-			ball.transform.rigidbody.velocity = new Vector3(vel.x * 4f, vel.y * 4f , vel.z);
-			is_shooted = false;
-			trigger_col = true;
-		}*/
 		ball.transform.localPosition += new Vector3(vel_x,vel_y,0f);
 		vel_y+=gravity;
 		pos = ball.transform.localPosition;
@@ -87,23 +102,23 @@ public class Ball : MonoBehaviour {
 			ball.transform.localPosition = new Vector3(ball.transform.localPosition.x, -80f, ball.transform.localPosition.z);
 		}
 		if(pos.y >= 133f){
-			vel_y = -1* vel_y;
+			vel_y = -0.45f* vel_y;
 			ball.transform.localPosition = new Vector3(ball.transform.localPosition.x, 133f, ball.transform.localPosition.z);
 		}
 		if(pos.x >= 14f && pos.x <= 18f && pos.y <= 6.5f){
 			vel_x = -vel_x;
 			ball.transform.localPosition = new Vector3(18f, ball.transform.localPosition.y,ball.transform.localPosition.z);
-			Debug.Log("a");
+			
 		}
 		else if(pos.x <= -14f && pos.x >= -18f && pos.y <= 6.5f){
 			vel_x = -vel_x;
 			ball.transform.localPosition = new Vector3(-18f, ball.transform.localPosition.y,ball.transform.localPosition.z);
-			Debug.Log("ab");
+			
 		}
 		else if(pos.x < 14f && pos.x > -14 && pos.y <= 6.5f){
 			vel_y = -vel_y;
 			ball.transform.localPosition = new Vector3(ball.transform.localPosition.x, 10f ,ball.transform.localPosition.z);
-			Debug.Log("abc");
+			
 		}
 	}
 		
