@@ -30,3 +30,16 @@ client/build
 !client/Library/assetservercachev3
 !client/Library/AssetVersioning.db
 !client/Library/ScriptAssemblies/
+
+protocol/*.pb
+protocol/*.cs
+
+*.o
+*.lo
+*.pb.cc
+*.pb.h
+*.la
+*.log
+external/protobuf-2.5.0/src/unittest_proto_middleman
+external/protobuf-2.5.0/src/.libs/
+external/protobuf-2.5.0/src/protoc
