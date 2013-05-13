@@ -31,7 +31,7 @@ public class Ball : MonoBehaviour {
 	}
 	
 	void OnTriggerEnter(Collider col){
-		Debug.Log("col!");
+		//Debug.Log("col!");
 		if(col.name.Equals("Player1")&&!trigger_col){
 			Player1 p = col.gameObject.GetComponent<Player1>();
 			vel_x = vel_x/4 + p.vel_x/2 + DirVectorElement(ball.transform.localPosition.x, p.transform.localPosition.x);
