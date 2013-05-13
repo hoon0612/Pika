@@ -24,7 +24,7 @@ client/build
 !client/Library/previews
 !client/Library/guidmapper
 !client/Library/*.asset
-!client/Library/metadata
+!client/Library/metadata/
 !client/Library/unity default resources
 !client/Library/unity editor resources
 !client/Library/assetservercachev3
