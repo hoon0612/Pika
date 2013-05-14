@@ -1,3 +1,5 @@
+package Pika.Game; 
+
 message Control {
   required string name = 1;
   required int32 time  = 2;
