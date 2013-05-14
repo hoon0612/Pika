@@ -1,17 +1,12 @@
 ﻿<Properties>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="../../../Downloads/AndroidGames/Assets/Standard Assets/Joystick.js">
-    <Files>
-      <File FileName="../../../Downloads/AndroidGames/Assets/Standard Assets/Joystick.js" Line="58" Column="1" />
-    </Files>
+  <MonoDevelop.Ide.Workbench>
     <Pads>
       <Pad Id="ProjectPad">
         <State expanded="True">
           <Node name="Assembly-CSharp" expanded="True">
             <Node name="Assets" expanded="True">
-              <Node name="Script" expanded="True">
-                <Node name="TouchManager.cs" selected="True" />
-              </Node>
+              <Node name="Script" expanded="True" />
             </Node>
           </Node>
           <Node name="Assembly-CSharp-firstpass" expanded="True">
@@ -20,6 +15,9 @@
                 <Node name="FingerGestures" expanded="True">
                   <Node name="Scripts" expanded="True">
                     <Node name="Base" expanded="True" />
+                    <Node name="Gesture Recognizers" expanded="True">
+                      <Node name="SwipeRecognizer.cs" selected="True" />
+                    </Node>
                     <Node name="Input Providers" expanded="True" />
                   </Node>
                 </Node>

@@ -119,7 +119,7 @@ public class TouchManager : MonoBehaviour
 			//Debug.Log("cursor : "+ touchFrame.cursor + "\nlower bound : " + touchFrame.boundary_minus_x + "\nupper bound : " + touchFrame.boundary_plus_x);
 			if(!jump)
 			{
-				if(deltaMove.y > 35 && totalMove.y >= 5)
+				if(deltaMove.y > 35 && totalMove.y >= 10)
 				{
 					//Swipe UP!
 					jump = true;
