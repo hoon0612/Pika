@@ -28,11 +28,11 @@ public class AutoScaleScreen : MonoBehaviour {
 			
 			if( (((float)baseHeight) / baseWidth) < ((float) Screen.height / Screen.width) ) {
 				newHeight = (int) (((float) Screen.height / Screen.width) * baseWidth);
-				Debug.Log("aa");
+				
 			}
 			else {
 				newHeight = (int) baseHeight;
-				Debug.Log("bb");
+				
 			}
 			
 			rootScript.manualHeight  = newHeight;

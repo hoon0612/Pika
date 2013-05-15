@@ -89,10 +89,7 @@ public class Player : MonoBehaviour {
 	// Use this for initialization
 	void Start () 
 	{
-		/*player = this.gameObject;
-		col = player.GetComponent<CapsuleCollider>();
-		player_sprite = player.transform.FindChild("player").GetComponent<UISprite>();
-		player_animation = player.transform.FindChild("pikachu").GetComponent<tk2dAnimatedSprite>();*/
+		
 	}
 	
 	// Update is called once per frame

@@ -9,7 +9,7 @@ public class TouchManager : MonoBehaviour
 	Player user;
 	tk2dAnimatedSprite player_animation;
 	bool motion_change = false;
-	bool is_right_user;
+	bool is_right_user; //if game player is on right of the device's screen, then this variable will have true, else false;
 	
 	class TouchFrame
 	{
@@ -44,15 +44,18 @@ public class TouchManager : MonoBehaviour
 			player = GameObject.Find("Player2").gameObject;
 			user = player.GetComponent<Player2>();
 			is_right_user = false;
-			Debug.Log("a");
 		}
 		else if(!player1.isEnemy && player2.isEnemy)
 		{
 			player = GameObject.Find("Player1").gameObject;
 			user = player.GetComponent<Player1>();
 			is_right_user = true;
-			Debug.Log("b");
 		}
+		else
+		{
+			Debug.Log("Touch Error! Can Not Find the User.");	
+		}
+		
 			
 		player_animation = player.transform.FindChild("pikachu").GetComponent<tk2dAnimatedSprite>();
 		touchFrame = new TouchFrame();
@@ -77,7 +80,7 @@ public class TouchManager : MonoBehaviour
 			if(is_right_user)
 				relativeObjectPosX = (player.transform.localPosition.x - 30f) / 175f; // max value is 1
 			else
-				relativeObjectPosX = -(player.transform.localPosition.x + 30f) / 175f; // max value is 1
+				relativeObjectPosX = -(player.transform.localPosition.x + 30f) / 175f;
 			touchFrame.cursor = relativeObjectPosX * touchFrame.size_x;
 			
 			touchFrame.boundary_minus_x = gesture.Position.x - touchFrame.cursor;
@@ -102,7 +105,6 @@ public class TouchManager : MonoBehaviour
 			else if(movePos + 5 < player.transform.localPosition.x)
 				mst = -1;
 			else mst = 0;
-			//player.rigidbody.velocity = new Vector3(mst * 1.2f, player.rigidbody.velocity.y , 0);
 			if(user.can_swipe)
 				user.vel_x = mst * 1.2f;
 			
@@ -124,7 +126,7 @@ public class TouchManager : MonoBehaviour
 			{
 				if(!user.jumping && !user.leftSliding && !user.rightSliding)
 				{
-					if(yMove > 25)// deltaMove.y > 35)
+					if(yMove > 20 && deltaMove.y > 10)// deltaMove.y > 35)
 					{
 						Debug.Log(yMove);
 						user.jumping = true;
@@ -148,15 +150,15 @@ public class TouchManager : MonoBehaviour
 				}
 				else if(user.jumping && !user.upperSpike && !user.middleSpike && !user.lowerSpike)
 				{
-					if(deltaMove.y > 20)//upper spike
+					if(deltaMove.y > 40 && yMove > 20)//upper spike
 					{
 						user.upperSpike = true;
 					}
-					else if(deltaMove.y < -20)//lower spike
+					else if(deltaMove.y < -40 && yMove < -20)//lower spike
 					{
 						user.lowerSpike = true;
 					}
-					else if(deltaMove.x > 20  || deltaMove.x < -20)
+					else if(deltaMove.x > 30  || deltaMove.x < -30)//middle spike
 					{
 						user.middleSpike = true;
 					}

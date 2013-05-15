@@ -38,7 +38,7 @@ public class Ball : MonoBehaviour {
 			else if(!p.upperSpike && p.middleSpike && !p.lowerSpike)
 			{
 				Debug.Log("Middle Spike!");
-				vel_y = -3f;
+				vel_y = -2.5f;
 				vel_x = -7f;
 				p.middleSpike = false;
 				is_spiked = true;
