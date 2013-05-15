@@ -11,6 +11,10 @@ public class Ball : MonoBehaviour {
 	bool trigger_col = false;
 	
 	void OnTriggerEnter(Collider col){
+		if(col.name.Equals("net") && !trigger_col)
+		{
+			
+		}
 		if(col.name.Equals("Player1")&&!trigger_col){
 			is_spiked = false;
 			Player1 p = col.gameObject.GetComponent<Player1>();
@@ -26,23 +30,24 @@ public class Ball : MonoBehaviour {
 			else if(p.upperSpike && !p.middleSpike && !p.lowerSpike)
 			{
 				Debug.Log("Upper Spike!");
-				vel_y = 5;
-				vel_x = -5;
+				vel_y = 7f;
+				vel_x = -3.5f;
 				p.upperSpike = false;
 				is_spiked = true;
 			}
 			else if(!p.upperSpike && p.middleSpike && !p.lowerSpike)
 			{
 				Debug.Log("Middle Spike!");
-				vel_y = -6;
-				vel_x = -6;
+				vel_y = -3f;
+				vel_x = -7f;
 				p.middleSpike = false;
 				is_spiked = true;
 			}
 			else if(!p.upperSpike && !p.middleSpike && p.lowerSpike)
 			{
-				vel_y = -10;
-				vel_x = -1;
+				Debug.Log("Lower Spike!");
+				vel_y = -7f;
+				vel_x = -3f;
 				p.lowerSpike = false;
 				is_spiked = true;
 			}
@@ -111,22 +116,22 @@ public class Ball : MonoBehaviour {
 			ball.transform.localPosition = new Vector3(ball.transform.localPosition.x, -80f, ball.transform.localPosition.z);
 		}
 		if(pos.y >= 133f){
-			vel_y = -0.45f* vel_y;
+			vel_y = -1* vel_y;
 			ball.transform.localPosition = new Vector3(ball.transform.localPosition.x, 133f, ball.transform.localPosition.z);
 		}
-		if(pos.x >= 14f && pos.x <= 18f && pos.y <= 6.5f){
+		if(pos.x >= 14f && pos.x <= 24f && pos.y <= 12f){
 			vel_x = -vel_x;
-			ball.transform.localPosition = new Vector3(18f, ball.transform.localPosition.y,ball.transform.localPosition.z);
+			ball.transform.localPosition = new Vector3(24f, ball.transform.localPosition.y,ball.transform.localPosition.z);
 			
 		}
-		else if(pos.x <= -14f && pos.x >= -18f && pos.y <= 6.5f){
+		else if(pos.x <= -14f && pos.x >= -24f && pos.y <= 12f){
 			vel_x = -vel_x;
-			ball.transform.localPosition = new Vector3(-18f, ball.transform.localPosition.y,ball.transform.localPosition.z);
+			ball.transform.localPosition = new Vector3(-24f, ball.transform.localPosition.y,ball.transform.localPosition.z);
 			
 		}
-		else if(pos.x < 14f && pos.x > -14 && pos.y <= 6.5f){
+		else if(pos.x < 14f && pos.x > -14 && pos.y >= 6.5f && pos.y < 12f){
 			vel_y = -vel_y;
-			ball.transform.localPosition = new Vector3(ball.transform.localPosition.x, 10f ,ball.transform.localPosition.z);
+			ball.transform.localPosition = new Vector3(ball.transform.localPosition.x, 12f ,ball.transform.localPosition.z);
 			
 		}
 	}

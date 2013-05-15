@@ -126,8 +126,10 @@ public class TouchManager : MonoBehaviour
 				{
 					if(yMove > 25)// deltaMove.y > 35)
 					{
+						Debug.Log(yMove);
 						user.jumping = true;
 						user.vel_y = 2.3f;
+						yMove = 0;
 					}
 					else if(deltaMove.x < -40)
 					{
@@ -152,11 +154,11 @@ public class TouchManager : MonoBehaviour
 					}
 					else if(deltaMove.y < -20)//lower spike
 					{
-						user.middleSpike = true;
-					}
-					else if(deltaMove.x > 20)
-					{
 						user.lowerSpike = true;
+					}
+					else if(deltaMove.x > 20  || deltaMove.x < -20)
+					{
+						user.middleSpike = true;
 					}
 				}
 			}
