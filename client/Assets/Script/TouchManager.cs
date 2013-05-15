@@ -4,22 +4,17 @@ using System.Collections;
 public class TouchManager : MonoBehaviour 
 {
 	GameObject player; //range x : 30~205 range y : -80~
+	Player1 player1;
+	Player2 player2;
+	Player user;
 	tk2dAnimatedSprite player_animation;
 	bool motion_change = false;
-	
-	bool walking = false;
-	bool jump = false;
-	bool leftSliding = false;
-	bool rightSliding = false;
-	
-	float vel_x;
-	float vel_y;
+	bool is_right_user;
 	
 	class TouchFrame
 	{
 		public float size_x;
 		public float size_y;
-		
 		public float cursor;
 		public Vector2 touch_pos;
 		public float boundary_minus_x;
@@ -37,10 +32,28 @@ public class TouchManager : MonoBehaviour
 		}
 	}
 	TouchFrame touchFrame;
+	
 	// Use this for initialization
 	void Start () 
 	{
-		player = GameObject.Find("Player1").gameObject;
+		player1 = GameObject.Find("Player1").GetComponent<Player1>();
+		player2 = GameObject.Find("Player2").GetComponent<Player2>();
+		Debug.Log(player1.isEnemy + " "+ player2.isEnemy);
+		if(player1.isEnemy && !player2.isEnemy)
+		{
+			player = GameObject.Find("Player2").gameObject;
+			user = player.GetComponent<Player2>();
+			is_right_user = false;
+			Debug.Log("a");
+		}
+		else if(!player1.isEnemy && player2.isEnemy)
+		{
+			player = GameObject.Find("Player1").gameObject;
+			user = player.GetComponent<Player1>();
+			is_right_user = true;
+			Debug.Log("b");
+		}
+			
 		player_animation = player.transform.FindChild("pikachu").GetComponent<tk2dAnimatedSprite>();
 		touchFrame = new TouchFrame();
 	}
@@ -48,60 +61,50 @@ public class TouchManager : MonoBehaviour
 	// Update is called once per frame
 	void FixedUpdate () 
 	{
-		if(walking)
-		{
-			player.rigidbody.velocity = new Vector3(vel_x, vel_y, 0);	
-			Debug.Log("walking!:);");
-		}
-		if(jump)
-		{
-			if(!motion_change)
-			{
-				motion_change = true;
-				player_animation.Play("Jump");
-			}
-			vel_y -= 0.06f;
-			player.rigidbody.velocity = new Vector3(vel_x, vel_y, 0);
-			if(player.transform.localPosition.y <= -80f)
-			{
-				player.transform.localPosition = new Vector3(player.transform.localPosition.x, -80f, player.transform.localPosition.z);
-				player.rigidbody.velocity = new Vector3(vel_x, 0, 0);
-				vel_y = 0;
-				motion_change = false;
-				jump = false;
-				player_animation.Play("Idle");
-			}
-		}
+		
 	}
 	
 	void OnDrag(DragGesture gesture)
 	{
 		ContinuousGesturePhase phase = gesture.Phase;
 		Vector2 deltaMove = gesture.DeltaMove;
-		Vector2 totalMove = gesture.TotalMove;
+		float yMove = 0;
+		yMove += deltaMove.y;
 		
 		if(phase == ContinuousGesturePhase.Started)
 		{
-			float relativeObjectPosX = (player.transform.localPosition.x - 30f) / 175f; // max value is 1
+			float relativeObjectPosX = 0;
+			if(is_right_user)
+				relativeObjectPosX = (player.transform.localPosition.x - 30f) / 175f; // max value is 1
+			else
+				relativeObjectPosX = -(player.transform.localPosition.x + 30f) / 175f; // max value is 1
 			touchFrame.cursor = relativeObjectPosX * touchFrame.size_x;
 			
 			touchFrame.boundary_minus_x = gesture.Position.x - touchFrame.cursor;
 			touchFrame.boundary_plus_x = touchFrame.boundary_minus_x + touchFrame.size_x;
-			walking = true;
-			
+			user.walking = true;
 		}
-		else if(phase == ContinuousGesturePhase.Updated)
-		{
-			float movePos = 30f + ((touchFrame.touch_pos.x - touchFrame.boundary_minus_x) / touchFrame.size_x * 175f);
+		else if(phase == ContinuousGesturePhase.Updated)       
+  		{
+			float movePos = 0;
 			float mst = 1;
-			
+			if(is_right_user)
+			{
+				movePos = 30f + ((touchFrame.touch_pos.x - touchFrame.boundary_minus_x) / touchFrame.size_x * 175f);
+			}
+		 		
+			else
+			{
+				movePos = -30f - ((touchFrame.boundary_plus_x - touchFrame.touch_pos.x) / touchFrame.size_x * 175f);
+			}
 			if(movePos - 5 > player.transform.localPosition.x)
 				mst = 1;
 			else if(movePos + 5 < player.transform.localPosition.x)
 				mst = -1;
 			else mst = 0;
 			//player.rigidbody.velocity = new Vector3(mst * 1.2f, player.rigidbody.velocity.y , 0);
-			vel_x = mst * 1.2f;
+			if(user.can_swipe)
+				user.vel_x = mst * 1.2f;
 			
 			touchFrame.touch_pos = gesture.Position;
 			touchFrame.cursor = touchFrame.touch_pos.x - touchFrame.boundary_minus_x;
@@ -116,37 +119,84 @@ public class TouchManager : MonoBehaviour
 				touchFrame.boundary_plus_x += touchFrame.cursor;
 				touchFrame.cursor = 0;
 			}
-			//Debug.Log("cursor : "+ touchFrame.cursor + "\nlower bound : " + touchFrame.boundary_minus_x + "\nupper bound : " + touchFrame.boundary_plus_x);
-			if(!jump)
+			//Debug.Log("Touch Pos : " + touchFrame.touch_pos.x +"/t/tCursor : " + touchFrame.cursor + "\nbndMinus : " + touchFrame.boundary_minus_x + "/t/tbndPlus : " + touchFrame.boundary_plus_x);
+			if(user.can_swipe)
 			{
-				if(deltaMove.y > 35 && totalMove.y >= 10)
+				if(!user.jumping && !user.leftSliding && !user.rightSliding)
 				{
-					//Swipe UP!
-					jump = true;
-					vel_y = 2.3f;
+					if(yMove > 25)// deltaMove.y > 35)
+					{
+						user.jumping = true;
+						user.vel_y = 2.3f;
+					}
+					else if(deltaMove.x < -40)
+					{
+						user.leftSliding = true;
+						user.vel_x = -1.5f;
+						user.vel_y = 0.75f;
+						user.can_swipe = false;
+					}
+					else if(deltaMove.x > 40)
+					{
+						user.rightSliding = true;
+						user.vel_x = 1.5f;
+						user.vel_y = 0.75f;
+						user.can_swipe = false;
+					}
+				}
+				else if(user.jumping && !user.upperSpike && !user.middleSpike && !user.lowerSpike)
+				{
+					if(deltaMove.y > 20)//upper spike
+					{
+						user.upperSpike = true;
+					}
+					else if(deltaMove.y < -20)//lower spike
+					{
+						user.middleSpike = true;
+					}
+					else if(deltaMove.x > 20)
+					{
+						user.lowerSpike = true;
+					}
 				}
 			}
+			
 		}
 		else
 		{
-			player.rigidbody.velocity = Vector3.zero;
-			walking = false;
-			vel_x = 0;
+			player.rigidbody.velocity = new Vector3(0, user.vel_y, 0);
+			user.walking = false;
 		}
 		
 	}
-	
-	/*void OnSwipe(SwipeGesture gesture)
+	/*
+	void OnSwipe(SwipeGesture gesture)
 	{
 		Vector2 move = gesture.Move;
 		float velocity = gesture.Velocity;
 		FingerGestures.SwipeDirection direction = gesture.Direction;
-		if(direction == FingerGestures.SwipeDirection.Up && !jump)
+		if(can_swipe)
 		{
-			jump = true;
-			//player.rigidbody.velocity += new Vector3(0, 2.3f, 0);
-			vel_y = 2.3f;
+			if(direction == FingerGestures.SwipeDirection.Up && !jumping && !leftSliding && !rightSliding)
+			{
+				jumping = true;
+				vel_y = 2.3f;
+			}
+			else if(direction == FingerGestures.SwipeDirection.Left && !jumping && !leftSliding && !rightSliding)
+			{
+				leftSliding = true;
+				vel_x = -1.5f;
+				vel_y = 0.75f;
+				can_swipe = false;
+			}
+			else if(direction == FingerGestures.SwipeDirection.Right && !jumping && !leftSliding && !rightSliding)
+			{
+				rightSliding = true;
+				vel_x = 1.5f;
+				vel_y = 0.75f;
+				can_swipe = false;
+			}	
 		}
-		
-	}*/
+	}
+	*/
 }

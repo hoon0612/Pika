@@ -7,42 +7,49 @@ public class Ball : MonoBehaviour {
 	Vector3 pos;
 	Vector3 vel;
 	public float vel_x, vel_y,gravity;
-	public bool is_shooted = false;
+	public bool is_spiked = false;
 	bool trigger_col = false;
-	void OnCollisionEnter(Collision col){
-		/*Debug.Log("aa");
-		Debug.Log(col.gameObject.name);
-		Debug.Log(col.collider.name);
-		//
-		foreach(ContactPoint contact in col.contacts){
-			Debug.Log(contact.point);
-			Debug.DrawRay(contact.point, contact.normal, Color.white);
-		}
-		float sqr_speed = ball.transform.rigidbody.velocity.x*ball.transform.rigidbody.velocity.x + ball.transform.rigidbody.velocity.y*ball.transform.rigidbody.velocity.y;
-		if(sqr_speed < 8f)
-			ball.transform.rigidbody.velocity *= 1.2f;
-		else
-			ball.transform.rigidbody.velocity /= 1.2f;*/
-		Debug.Log("xxxx");
-		if(trigger_col){
-			//ball.transform.rigidbody.velocity = new Vector3(vel.x / 4f, vel.y / 4f, vel.z);
-			trigger_col = false;
-		}
-	}
 	
 	void OnTriggerEnter(Collider col){
-		//Debug.Log("col!");
 		if(col.name.Equals("Player1")&&!trigger_col){
+			is_spiked = false;
 			Player1 p = col.gameObject.GetComponent<Player1>();
-			vel_x = vel_x/4 + p.vel_x/2 + DirVectorElement(ball.transform.localPosition.x, p.transform.localPosition.x);
-			if(ball.transform.localPosition.y < p.transform.localPosition.y)
-				vel_y = -vel_y + p.vel_y/2;
-			else
-				vel_y = -vel_y + p.vel_y/2 + DirVectorElement(ball.transform.localPosition.y, p.transform.localPosition.y);
-			trigger_col = true;
+			if(!p.upperSpike && !p.middleSpike && !p.lowerSpike)
+			{
+				vel_x = vel_x/4 + p.vel_x/2 + DirVectorElement(ball.transform.localPosition.x, p.transform.localPosition.x);
+				if(ball.transform.localPosition.y < p.transform.localPosition.y)
+					vel_y = -vel_y + p.vel_y/2;
+				else
+					vel_y = -vel_y + p.vel_y/2 + DirVectorElement(ball.transform.localPosition.y, p.transform.localPosition.y);
+				trigger_col = true;	
+			}
+			else if(p.upperSpike && !p.middleSpike && !p.lowerSpike)
+			{
+				Debug.Log("Upper Spike!");
+				vel_y = 5;
+				vel_x = -5;
+				p.upperSpike = false;
+				is_spiked = true;
+			}
+			else if(!p.upperSpike && p.middleSpike && !p.lowerSpike)
+			{
+				Debug.Log("Middle Spike!");
+				vel_y = -6;
+				vel_x = -6;
+				p.middleSpike = false;
+				is_spiked = true;
+			}
+			else if(!p.upperSpike && !p.middleSpike && p.lowerSpike)
+			{
+				vel_y = -10;
+				vel_x = -1;
+				p.lowerSpike = false;
+				is_spiked = true;
+			}
 		}
 		else if(col.name.Equals("Player2")&&!trigger_col){
 			Player2 p = col.gameObject.GetComponent<Player2>();
+			is_spiked = false;
 			vel_x = vel_x/4 + p.vel_x/2 + DirVectorElement(ball.transform.localPosition.x, p.transform.localPosition.x);
 			if(ball.transform.localPosition.y < p.transform.localPosition.y)
 				vel_y = -vel_y + p.vel_y/2;
@@ -69,7 +76,6 @@ public class Ball : MonoBehaviour {
 	
 	// Use this for initialization
 	void Start () {
-		//gravity = 2.5f;
 		ball = this.gameObject;
 		ball_sprite = this.transform.FindChild("ball").GetComponent<UISprite>();
 		pos = ball.transform.localPosition;
@@ -81,10 +87,13 @@ public class Ball : MonoBehaviour {
 	
 	// Update is called once per frame
 	void FixedUpdate () {
-		if(vel_x > 2.5f) vel_x = 2.5f;
-		if(vel_x < -2.5f) vel_x = -2.5f;
-		if(vel_y > 6f) vel_y = 6f;
-		if(vel_y < -6f) vel_y = -6f;
+		if(!is_spiked)
+		{
+			if(vel_x > 2.5f) vel_x = 2.5f;
+			if(vel_x < -2.5f) vel_x = -2.5f;
+			if(vel_y > 6f) vel_y = 6f;
+			if(vel_y < -6f) vel_y = -6f;	
+		}
 		
 		ball.transform.localPosition += new Vector3(vel_x,vel_y,0f);
 		vel_y+=gravity;
