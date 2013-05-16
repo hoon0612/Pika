@@ -2,6 +2,7 @@ ProtoBuf = require "protobufjs"
 builder  = ProtoBuf.protoFromFile "../protocol/Control.proto"
 Pika     = builder.build("Pika");
 Control  = Pika.Game.Control
+#ByteBuffer = require "bytebuffer"
 
 PORT = 5567
 
@@ -12,10 +13,11 @@ server = dgram.createSocket 'udp4'
 clients = new Array()
 
 server.bind PORT, ->
-    console.log Control
     console.log "SOCKET BINDED"
 
 lookup_client = (rinfo) ->
+
+
 
     result = [client for client in clients when (client.address == rinfo.address and client.port == rinfo.port)]
     
@@ -31,15 +33,32 @@ add_client = (rinfo) ->
 
 server.on "message", (msg, rinfo) ->
 
-    console.log "server got: " + msg + " from " + rinfo.address + ":" + rinfo.port
+    console.log "server got: #{ msg }(#{ msg.length } bytes) from #{ rinfo.address }:#{ rinfo.port }"
+
+
+    buf = new ArrayBuffer( msg.length )
+
+    for i in [0...msg.length]
+        buf[i] = msg[i]
+
+    console.log buf
+
+    try
+        myMessage = Control.decode(buf)
+    catch e
+
+        if e.msg
+            console.log "decoded message with missing required fields" + e.msg
+        else
+            console.log "something is weird"
 
     client = lookup_client rinfo
     
     if  client == undefined
         client = add_client rinfo
             
-    server.send msg, 0, msg.length, rinfo.port, rinfo.address, (err, bytes) ->
-        console.log "sent #{bytes} bytes of data"
+#    server.send msg, 0, msg.length, rinfo.port, rinfo.address, (err, bytes) ->
+#        console.log "sent #{bytes} bytes of data"
 
 server.on "listening", ->
     address = server.address()
