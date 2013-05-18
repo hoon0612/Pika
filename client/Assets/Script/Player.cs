@@ -69,6 +69,14 @@ public class Player : MonoBehaviour {
 	}
 	public bool can_swipe = true;
 	
+	public float jump_speed = 2.3f;
+	public float sliding_x_speed = 1.5f;
+	public float sliding_y_speed = 0.75f;
+	public float jump_reducing_speed = 0.07f;
+	public float sliding_reducing_y_speed = 0.09f;
+	public float walking_speed = 1.2f;
+	public float spike_x_speed = 1f;
+	
 	public IEnumerator WakeUp()
 	{
 		yield return new WaitForSeconds(0);
@@ -76,7 +84,7 @@ public class Player : MonoBehaviour {
 	
 	public	IEnumerator SetSpikeFalse()
 	{
-		yield return new WaitForSeconds(0.15f);	
+		yield return new WaitForSeconds(0.25f);	
 		upperSpike = false;
 		middleSpike = false;
 		lowerSpike = false;

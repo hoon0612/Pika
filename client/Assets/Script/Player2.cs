@@ -65,8 +65,8 @@ public class Player2 : Player {
 					motion_change = true;
 					player_animation.Play("Jump");
 				}
-				vel_y -= 0.06f;
-				player.rigidbody.velocity = new Vector3(vel_x, vel_y, 0);
+				vel_y -= jump_reducing_speed;
+				player.rigidbody.velocity -= new Vector3(0, 0.07f, 0);
 				if(player.transform.localPosition.y <= -80f)
 				{
 					player.transform.localPosition = new Vector3(player.transform.localPosition.x, -80f, player.transform.localPosition.z);
@@ -90,7 +90,7 @@ public class Player2 : Player {
 					player_animation.Play("Slide");
 					player.transform.FindChild("pikachu").localRotation = Quaternion.Euler(new Vector3(0,180,0));
 				}
-				vel_y -= 0.06f;
+				vel_y -= sliding_reducing_y_speed;
 				player.rigidbody.velocity = new Vector3(vel_x, vel_y, 0);
 				if(player.transform.localPosition.y <= -80f)
 				{
@@ -111,7 +111,7 @@ public class Player2 : Player {
 					motion_change = true;
 					player_animation.Play("Slide");
 				}
-				vel_y -= 0.06f;
+				vel_y -= sliding_reducing_y_speed;
 				player.rigidbody.velocity = new Vector3(vel_x, vel_y, 0);
 				if(player.transform.localPosition.y <= -80f)
 				{

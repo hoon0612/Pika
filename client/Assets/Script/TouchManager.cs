@@ -8,27 +8,33 @@ public class TouchManager : MonoBehaviour
 	Player2 player2;
 	Player user;
 	tk2dAnimatedSprite player_animation;
-	bool motion_change = false;
-	bool is_right_user; //if game player is on right of the device's screen, then this variable will have true, else false;
+	bool motion_change = false; //if game player's motion is changed, the value is true else false.
+	bool is_right_user; //if game player is on right of the device's screen, then this variable will have true, else false.
+	float jump_touch_dist = Screen.height/8;
 	
 	class TouchFrame
 	{
-		public float size_x;
-		public float size_y;
-		public float cursor;
-		public Vector2 touch_pos;
-		public float boundary_minus_x;
-		public float boundary_plus_x;
-		
+		public float size_x;	//the frame's width
+		public float size_y; 	//the frame's height
+		public float cursor_x; //the frame's x-axis cursor
+		public float cursor_y; //the frame's y_axis cursor
+		public Vector2 touch_pos;	//user's touch position
+		public float boundary_minus_x;	//the frame's left bound
+		public float boundary_plus_x;	//the frame's right bound
+		public float boundary_minus_y;	//the frame's lower bound
+		public float boundary_plus_y;	//the frame's upper bound
 		
 		public TouchFrame()
 		{
 			size_x = Screen.width/5;
 			size_y = Screen.height/5;
-			cursor = 0;
+			cursor_x = 0;
+			cursor_y = 0;
 			touch_pos = Vector2.zero;
 			boundary_minus_x = 0;
 			boundary_plus_x = 0;
+			boundary_minus_y = 0;
+			boundary_plus_y = 0;
 		}
 	}
 	TouchFrame touchFrame;
@@ -71,8 +77,6 @@ public class TouchManager : MonoBehaviour
 	{
 		ContinuousGesturePhase phase = gesture.Phase;
 		Vector2 deltaMove = gesture.DeltaMove;
-		float yMove = 0;
-		yMove += deltaMove.y;
 		
 		if(phase == ContinuousGesturePhase.Started)
 		{
@@ -80,11 +84,14 @@ public class TouchManager : MonoBehaviour
 			if(is_right_user)
 				relativeObjectPosX = (player.transform.localPosition.x - 30f) / 175f; // max value is 1
 			else
-				relativeObjectPosX = -(player.transform.localPosition.x + 30f) / 175f;
-			touchFrame.cursor = relativeObjectPosX * touchFrame.size_x;
-			
-			touchFrame.boundary_minus_x = gesture.Position.x - touchFrame.cursor;
+				relativeObjectPosX = -(player.transform.localPosition.x + 30f) / 175f; // min value is -1
+			touchFrame.cursor_x = relativeObjectPosX * touchFrame.size_x;
+			touchFrame.cursor_y = 0;
+		
+			touchFrame.boundary_minus_x = gesture.Position.x - touchFrame.cursor_x;
+			touchFrame.boundary_minus_y = gesture.Position.y;
 			touchFrame.boundary_plus_x = touchFrame.boundary_minus_x + touchFrame.size_x;
+			touchFrame.boundary_plus_y = touchFrame.boundary_minus_y + touchFrame.size_y;
 			user.walking = true;
 		}
 		else if(phase == ContinuousGesturePhase.Updated)       
@@ -106,61 +113,80 @@ public class TouchManager : MonoBehaviour
 				mst = -1;
 			else mst = 0;
 			if(user.can_swipe)
-				user.vel_x = mst * 1.2f;
+				user.vel_x = mst * user.walking_speed;
 			
 			touchFrame.touch_pos = gesture.Position;
-			touchFrame.cursor = touchFrame.touch_pos.x - touchFrame.boundary_minus_x;
+			touchFrame.cursor_x = touchFrame.touch_pos.x - touchFrame.boundary_minus_x;
+			touchFrame.cursor_y = touchFrame.touch_pos.y - touchFrame.boundary_minus_y;
+			
+			/*move touch frame if cursors get out of this frame*/
 			if(touchFrame.touch_pos.x > touchFrame.boundary_plus_x)
 			{
-				touchFrame.boundary_plus_x += touchFrame.cursor - touchFrame.size_x;
-				touchFrame.boundary_minus_x += touchFrame.cursor - touchFrame.size_x;
-				touchFrame.cursor = touchFrame.size_x;
+				touchFrame.boundary_plus_x += touchFrame.cursor_x - touchFrame.size_x;
+				touchFrame.boundary_minus_x += touchFrame.cursor_x - touchFrame.size_x;
+				touchFrame.cursor_x = touchFrame.size_x;
 			}else if(touchFrame.touch_pos.x < touchFrame.boundary_minus_x)
 			{
-				touchFrame.boundary_minus_x += touchFrame.cursor;
-				touchFrame.boundary_plus_x += touchFrame.cursor;
-				touchFrame.cursor = 0;
+				touchFrame.boundary_minus_x += touchFrame.cursor_x;
+				touchFrame.boundary_plus_x += touchFrame.cursor_x;
+				touchFrame.cursor_x = 0;
+			}
+			if(touchFrame.touch_pos.y > touchFrame.boundary_plus_y)
+			{
+				touchFrame.boundary_plus_y += touchFrame.cursor_y - touchFrame.size_y;
+				touchFrame.boundary_minus_y += touchFrame.cursor_y - touchFrame.size_y;
+				touchFrame.cursor_y = touchFrame.size_y;
+			}
+			else if(touchFrame.touch_pos.y < touchFrame.boundary_minus_y)
+			{
+				touchFrame.boundary_plus_y += touchFrame.cursor_y;
+				touchFrame.boundary_minus_y += touchFrame.cursor_y;
+				touchFrame.cursor_y = 0;
 			}
 			//Debug.Log("Touch Pos : " + touchFrame.touch_pos.x +"/t/tCursor : " + touchFrame.cursor + "\nbndMinus : " + touchFrame.boundary_minus_x + "/t/tbndPlus : " + touchFrame.boundary_plus_x);
 			if(user.can_swipe)
 			{
 				if(!user.jumping && !user.leftSliding && !user.rightSliding)
 				{
-					if(yMove > 20 && deltaMove.y > 10)// deltaMove.y > 35)
+					if(touchFrame.touch_pos.y - touchFrame.boundary_minus_y > jump_touch_dist)// deltaMove.y > 35)
 					{
-						Debug.Log(yMove);
 						user.jumping = true;
-						user.vel_y = 2.3f;
-						yMove = 0;
+						user.vel_y = user.jump_speed;
 					}
 					else if(deltaMove.x < -40)
 					{
 						user.leftSliding = true;
-						user.vel_x = -1.5f;
-						user.vel_y = 0.75f;
+						user.vel_x = -user.sliding_x_speed;
+						user.vel_y = user.sliding_y_speed;
 						user.can_swipe = false;
 					}
 					else if(deltaMove.x > 40)
 					{
 						user.rightSliding = true;
-						user.vel_x = 1.5f;
-						user.vel_y = 0.75f;
+						user.vel_x = user.sliding_x_speed;
+						user.vel_y = user.sliding_y_speed;
 						user.can_swipe = false;
 					}
 				}
 				else if(user.jumping && !user.upperSpike && !user.middleSpike && !user.lowerSpike)
 				{
-					if(deltaMove.y > 40 && yMove > 20)//upper spike
+					if(deltaMove.y > 25)//upper spike
 					{
 						user.upperSpike = true;
 					}
-					else if(deltaMove.y < -40 && yMove < -20)//lower spike
+					else if(deltaMove.y < -25)//lower spike
 					{
 						user.lowerSpike = true;
 					}
-					else if(deltaMove.x > 30  || deltaMove.x < -30)//middle spike
+					else if(deltaMove.x > 20)//middle spike
 					{
 						user.middleSpike = true;
+						user.vel_x = user.spike_x_speed;
+					}
+					else if(deltaMove.x < -20)//middle spike
+					{
+						user.middleSpike = true;
+						user.vel_x = -user.spike_x_speed;
 					}
 				}
 			}
@@ -168,39 +194,12 @@ public class TouchManager : MonoBehaviour
 		}
 		else
 		{
-			player.rigidbody.velocity = new Vector3(0, user.vel_y, 0);
+			if(!user.upperSpike && !user.middleSpike && !user.lowerSpike)
+				player.rigidbody.velocity = new Vector3(0, user.vel_y, 0);
+			else
+				player.rigidbody.velocity = new Vector3(user.vel_x, user.vel_y, 0);
 			user.walking = false;
 		}
 		
 	}
-	/*
-	void OnSwipe(SwipeGesture gesture)
-	{
-		Vector2 move = gesture.Move;
-		float velocity = gesture.Velocity;
-		FingerGestures.SwipeDirection direction = gesture.Direction;
-		if(can_swipe)
-		{
-			if(direction == FingerGestures.SwipeDirection.Up && !jumping && !leftSliding && !rightSliding)
-			{
-				jumping = true;
-				vel_y = 2.3f;
-			}
-			else if(direction == FingerGestures.SwipeDirection.Left && !jumping && !leftSliding && !rightSliding)
-			{
-				leftSliding = true;
-				vel_x = -1.5f;
-				vel_y = 0.75f;
-				can_swipe = false;
-			}
-			else if(direction == FingerGestures.SwipeDirection.Right && !jumping && !leftSliding && !rightSliding)
-			{
-				rightSliding = true;
-				vel_x = 1.5f;
-				vel_y = 0.75f;
-				can_swipe = false;
-			}	
-		}
-	}
-	*/
 }

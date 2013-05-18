@@ -38,7 +38,7 @@ public class Ball : MonoBehaviour {
 			else if(!p.upperSpike && p.middleSpike && !p.lowerSpike)
 			{
 				Debug.Log("Middle Spike!");
-				vel_y = -2.5f;
+				vel_y = -2f;
 				vel_x = -7f;
 				p.middleSpike = false;
 				is_spiked = true;
@@ -75,8 +75,8 @@ public class Ball : MonoBehaviour {
 		trigger_col = false;
 	}
 	
-	float DirVectorElement(float ball, float player){
-		return (ball-player)/10;
+	float DirVectorElement(float elem_1, float elem_2){
+		return (elem_1-elem_2)/10;
 	}
 	
 	// Use this for initialization
@@ -99,25 +99,24 @@ public class Ball : MonoBehaviour {
 			if(vel_y > 6f) vel_y = 6f;
 			if(vel_y < -6f) vel_y = -6f;	
 		}
-		
-		ball.transform.localPosition += new Vector3(vel_x,vel_y,0f);
 		vel_y+=gravity;
+		ball.transform.localPosition += new Vector3(vel_x,vel_y,0f);
 		pos = ball.transform.localPosition;
-		if(pos.x <= -196f){
+		if(pos.x < -196f){
 			vel_x = -1 * vel_x;
 			ball.transform.localPosition = new Vector3(-196f,ball.transform.localPosition.y, ball.transform.localPosition.z);
 		}
-		if(pos.x >= 196f){
+		if(pos.x > 196f){
 			vel_x = -1 * vel_x;
 			ball.transform.localPosition = new Vector3(196f,ball.transform.localPosition.y, ball.transform.localPosition.z);
 		}
-		if(pos.y <= -80f){
+		if(pos.y < -80f){
 			vel_y = -1 * vel_y;	
 			ball.transform.localPosition = new Vector3(ball.transform.localPosition.x, -80f, ball.transform.localPosition.z);
 		}
-		if(pos.y >= 133f){
-			vel_y = -1* vel_y;
-			ball.transform.localPosition = new Vector3(ball.transform.localPosition.x, 133f, ball.transform.localPosition.z);
+		if(pos.y > 133f){
+			vel_y = -1* vel_y + gravity;
+			ball.transform.localPosition = new Vector3(ball.transform.localPosition.x, 132f, ball.transform.localPosition.z);
 		}
 		if(pos.x >= 14f && pos.x <= 24f && pos.y <= 12f){
 			vel_x = -vel_x;
