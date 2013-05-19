@@ -8,7 +8,6 @@ public class TouchManager : MonoBehaviour
 	Player2 player2;
 	Player user;
 	tk2dAnimatedSprite player_animation;
-	bool motion_change = false; //if game player's motion is changed, the value is true else false.
 	bool is_right_user; //if game player is on right of the device's screen, then this variable will have true, else false.
 	float jump_touch_dist = Screen.height/8;
 	
@@ -61,7 +60,6 @@ public class TouchManager : MonoBehaviour
 		{
 			Debug.Log("Touch Error! Can Not Find the User.");	
 		}
-		
 			
 		player_animation = player.transform.FindChild("pikachu").GetComponent<tk2dAnimatedSprite>();
 		touchFrame = new TouchFrame();
@@ -85,9 +83,10 @@ public class TouchManager : MonoBehaviour
 				relativeObjectPosX = (player.transform.localPosition.x - 30f) / 175f; // max value is 1
 			else
 				relativeObjectPosX = -(player.transform.localPosition.x + 30f) / 175f; // min value is -1
+			//Initialize touch Frame's cursor
 			touchFrame.cursor_x = relativeObjectPosX * touchFrame.size_x;
 			touchFrame.cursor_y = 0;
-		
+			//Initialize touch Frame's boundary
 			touchFrame.boundary_minus_x = gesture.Position.x - touchFrame.cursor_x;
 			touchFrame.boundary_minus_y = gesture.Position.y;
 			touchFrame.boundary_plus_x = touchFrame.boundary_minus_x + touchFrame.size_x;
@@ -96,8 +95,8 @@ public class TouchManager : MonoBehaviour
 		}
 		else if(phase == ContinuousGesturePhase.Updated)       
   		{
-			float movePos = 0;
-			float mst = 1;
+			float movePos = 0; // player's move position which is on x-axis
+			float mst = 1;		//player's moving direction ( + : move right, - : move left)
 			if(is_right_user)
 			{
 				movePos = 30f + ((touchFrame.touch_pos.x - touchFrame.boundary_minus_x) / touchFrame.size_x * 175f);
@@ -115,6 +114,7 @@ public class TouchManager : MonoBehaviour
 			if(user.can_swipe)
 				user.vel_x = mst * user.walking_speed;
 			
+			//update touch Frame's cursor and touch Frame's boundary
 			touchFrame.touch_pos = gesture.Position;
 			touchFrame.cursor_x = touchFrame.touch_pos.x - touchFrame.boundary_minus_x;
 			touchFrame.cursor_y = touchFrame.touch_pos.y - touchFrame.boundary_minus_y;
@@ -144,23 +144,24 @@ public class TouchManager : MonoBehaviour
 				touchFrame.cursor_y = 0;
 			}
 			//Debug.Log("Touch Pos : " + touchFrame.touch_pos.x +"/t/tCursor : " + touchFrame.cursor + "\nbndMinus : " + touchFrame.boundary_minus_x + "/t/tbndPlus : " + touchFrame.boundary_plus_x);
+			
 			if(user.can_swipe)
 			{
 				if(!user.jumping && !user.leftSliding && !user.rightSliding)
 				{
-					if(touchFrame.touch_pos.y - touchFrame.boundary_minus_y > jump_touch_dist)// deltaMove.y > 35)
+					if(touchFrame.touch_pos.y - touchFrame.boundary_minus_y > jump_touch_dist)//jump touch event
 					{
 						user.jumping = true;
 						user.vel_y = user.jump_speed;
 					}
-					else if(deltaMove.x < -40)
+					else if(deltaMove.x < -40) // left sliding touch event
 					{
 						user.leftSliding = true;
 						user.vel_x = -user.sliding_x_speed;
 						user.vel_y = user.sliding_y_speed;
 						user.can_swipe = false;
 					}
-					else if(deltaMove.x > 40)
+					else if(deltaMove.x > 40) // right sliding touch event
 					{
 						user.rightSliding = true;
 						user.vel_x = user.sliding_x_speed;
@@ -192,7 +193,7 @@ public class TouchManager : MonoBehaviour
 			}
 			
 		}
-		else
+		else // it is called when user get off the hand from screen
 		{
 			if(!user.upperSpike && !user.middleSpike && !user.lowerSpike)
 				player.rigidbody.velocity = new Vector3(0, user.vel_y, 0);

@@ -1,7 +1,8 @@
 using UnityEngine;
 using System.Collections;
 
-public class Player1 : Player {
+public class Player1 : Player 
+{
 	bool motion_change = false;
 	
 	public IEnumerator WakeUp()
@@ -19,27 +20,27 @@ public class Player1 : Player {
 	void Awake()
 	{
 		isEnemy = false;
+		Debug.Log(isEnemy);
 	}
 	
 	// Use this for initialization
 	void Start () {
 		player = this.gameObject;
 		col = player.GetComponent<CapsuleCollider>();
-		player_sprite = player.transform.FindChild("player").GetComponent<UISprite>();
 		player_animation = player.transform.FindChild("pikachu").GetComponent<tk2dAnimatedSprite>();
-		//isEnemy = true;
+		isEnemy = false;
 	}
 	void CorrectPlayerPos()
 	{
-		if(player.transform.localPosition.x <= 30f)
+		if(player.transform.localPosition.x < 30f)
 		{
 			player.transform.localPosition = new Vector3(30f, player.transform.localPosition.y, player.transform.localPosition.z);
 		}
-		if(player.transform.localPosition.x >= 205f)
+		if(player.transform.localPosition.x > 205f)
 		{
 			player.transform.localPosition = new Vector3(205f, player.transform.localPosition.y, player.transform.localPosition.z);
 		}
-		if(player.transform.localPosition.y <= -80f)
+		if(player.transform.localPosition.y < -80f)
 		{
 			player.transform.localPosition = new Vector3(player.transform.localPosition.x, -80f , player.transform.localPosition.z);
 		}
@@ -48,7 +49,6 @@ public class Player1 : Player {
 	// Update is called once per frame
 	void FixedUpdate () 
 	{
-		CorrectPlayerPos();
 		if(isEnemy)
 		{
 			
@@ -67,13 +67,14 @@ public class Player1 : Player {
 					player_animation.Play("Jump");
 				}
 				vel_y -= jump_reducing_speed;
-				player.rigidbody.velocity -= new Vector3(0, 0.07f, 0);
-				if(player.transform.localPosition.y <= -80f)
+				player.rigidbody.velocity -= new Vector3(0, jump_reducing_speed, 0);
+				
+				if(player.transform.localPosition.y < -80f)
 				{
-					player.transform.localPosition = new Vector3(player.transform.localPosition.x, -80f, player.transform.localPosition.z);
 					vel_x = 0; // added
 					vel_y = 0;
 					player.rigidbody.velocity = new Vector3(vel_x, vel_y, 0);
+					player.transform.localPosition = new Vector3(player.transform.localPosition.x, -80f, player.transform.localPosition.z);
 					motion_change = false;
 					jumping = false;
 					player_animation.Play("Idle");
@@ -92,12 +93,12 @@ public class Player1 : Player {
 				}
 				vel_y -= sliding_reducing_y_speed;
 				player.rigidbody.velocity = new Vector3(vel_x, vel_y, 0);
-				if(player.transform.localPosition.y <= -80f)
+				if(player.transform.localPosition.y < -80f)
 				{
-					player.transform.localPosition = new Vector3(player.transform.localPosition.x, -80f, player.transform.localPosition.z);
 					vel_y = 0;
 					vel_x = 0;
 					player.rigidbody.velocity = new Vector3(vel_x, vel_y, 0);
+					player.transform.localPosition = new Vector3(player.transform.localPosition.x, -80f, player.transform.localPosition.z);
 					motion_change = false;
 					leftSliding = false;
 					StartCoroutine(WakeUp());
@@ -114,17 +115,18 @@ public class Player1 : Player {
 				}
 				vel_y -= sliding_reducing_y_speed;
 				player.rigidbody.velocity = new Vector3(vel_x, vel_y, 0);
-				if(player.transform.localPosition.y <= -80f)
+				if(player.transform.localPosition.y < -80f)
 				{
-					player.transform.localPosition = new Vector3(player.transform.localPosition.x, -80f, player.transform.localPosition.z);
 					vel_x = 0;
 					vel_y = 0;
 					player.rigidbody.velocity = new Vector3(vel_x, vel_y, 0);
+					player.transform.localPosition = new Vector3(player.transform.localPosition.x, -80f, player.transform.localPosition.z);
 					motion_change = false;
 					rightSliding = false;
 					StartCoroutine(WakeUp());
 				}
 			}
 		}
+		CorrectPlayerPos();
 	}
 }

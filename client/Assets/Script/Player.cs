@@ -2,25 +2,18 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
-public enum PlayerStatus
+public class Player : MonoBehaviour 
 {
-	None,
-	Walking, 
-	Jumping,
-	LeftSliding,
-	RightSliding,
-	Win,
-	Lose
-} 
-
-public class Player : MonoBehaviour {
 	private GameObject _player;
 	private float _vel_x, _vel_y;
-	public GameObject player{
-		get {
+	public GameObject player
+	{
+		get 
+		{
 			return _player;
 		}
-		set{
+		set
+		{
 			_player = value;
 		}
 	}
