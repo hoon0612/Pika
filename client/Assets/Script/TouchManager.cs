@@ -7,7 +7,7 @@ public class TouchManager : MonoBehaviour
 	Player1 player1;
 	Player2 player2;
 	Player user;
-	tk2dAnimatedSprite player_animation;
+	
 	bool is_right_user; //if game player is on right of the device's screen, then this variable will have true, else false.
 	float jump_touch_dist = Screen.height/8;
 	
@@ -60,8 +60,6 @@ public class TouchManager : MonoBehaviour
 		{
 			Debug.Log("Touch Error! Can Not Find the User.");	
 		}
-			
-		player_animation = player.transform.FindChild("pikachu").GetComponent<tk2dAnimatedSprite>();
 		touchFrame = new TouchFrame();
 	}
 	
