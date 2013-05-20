@@ -17,17 +17,40 @@ server.bind PORT, ->
 
 lookup_client = (rinfo) ->
 
-    result = [client for client in clients when (client.address == rinfo.address and client.port == rinfo.port)]
+    result = undefined
+    result = client for client in clients when (client.address == rinfo.address and client.port == rinfo.port)
+
+    if result == undefined
+        return undefined
+
+    return result
+
+enemy_client = (rinfo) ->
+
+    result = undefined
+    result = client for client in clients when (client.address != rinfo.address or client.port != rinfo.port)
     
-    if result.length != 1
+    if result == undefined
         return undefined
     
-    return result[0]
+    return result
 
 add_client = (rinfo) ->
-    clients.push
-        "port": rinfo.port
-        "address": rinfo.address
+
+    if clients.length < 2
+        clients.push
+            "port": rinfo.port
+            "address": rinfo.address
+
+        console.log "[+] Num of client(s) : #{ clients.length }  "
+    
+        return clients[ clients.length - 1 ]
+    
+    else
+
+        console.log "[+] Too much clients"
+    
+        return undefined
 
 server.on "message", (msg, rinfo) ->
 
@@ -48,15 +71,17 @@ server.on "message", (msg, rinfo) ->
 
     client = lookup_client rinfo
 
-    console.log myMessage        
-    
     if  client == undefined
         client = add_client rinfo
-            
-#    server.send msg, 0, msg.length, rinfo.port, rinfo.address, (err, bytes) ->
-#        console.log "sent #{bytes} bytes of data"
+
+    enemy = enemy_client client
+
+    if enemy != undefined
+    
+        server.send msg, 0, msg.length, enemy.port, enemy.address, (err, bytes) ->
+            console.log "sent #{bytes} bytes of data"
 
 server.on "listening", ->
     address = server.address()
     console.log "server listening "+ address.address + ":" + address.port
-
+    
