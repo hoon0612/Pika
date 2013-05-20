@@ -8,7 +8,18 @@ message Control {
     optional float vel_y = 4;
   }
 
+  enum MotionType {
+    WALK = 0;
+    JUMP = 1;
+    SLIDE = 2;
+    SPIKE = 3;    
+    WIN  = 4;
+    LOSE = 5;
+  }
+  
   required string id = 1;
-  optional Status Character  = 2;
-  optional Status Ball = 3;
+  required int32 time = 2;
+  optional Status Character  = 3;
+  optional Status Ball = 4;
+  required MotionType motion = 5 [ default=WALK ]; 
 }
