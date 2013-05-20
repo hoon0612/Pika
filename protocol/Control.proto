@@ -1,10 +1,14 @@
 package Pika.Game; 
 
 message Control {
-  required string name = 1;
-  required int32 time  = 2;
-  required float loc_x = 3;
-  required float loc_y = 4;
-  optional float vel_x = 5;
-  optional float vel_y = 6;
+ message Status {
+    required float loc_x = 3;
+    required float loc_y = 4;
+    optional float vel_x = 5;
+    optional float vel_y = 6;
+  }
+
+  required string id = 1;
+  optional Status Character  = 2;
+  optional Status Ball = 3;
 }
