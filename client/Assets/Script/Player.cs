@@ -17,6 +17,7 @@ public class Player : MonoBehaviour
 			_player = value;
 		}
 	}
+	public bool is_right_user = false;
 	public bool shoot_pressed = false;
 	public CapsuleCollider col;
 	public UISprite player_sprite;
@@ -50,25 +51,15 @@ public class Player : MonoBehaviour
 	public bool upperSpike = false;
 	public bool middleSpike = false;
 	public bool lowerSpike = false;
-	private bool _isEnemy;
-	public bool isEnemy
-	{
-		get{
-			return _isEnemy;
-		}
-		set{
-			_isEnemy = value;
-		}
-	}
 	public bool can_swipe = true;
 	
-	public float jump_speed = 2.3f;
-	public float sliding_x_speed = 1.5f;
-	public float sliding_y_speed = 0.75f;
-	public float jump_reducing_speed = 0.07f;
-	public float sliding_reducing_y_speed = 0.09f;
-	public float walking_speed = 1.2f;
-	public float spike_x_speed = 1f;
+	public float jump_speed = 330f;
+	public float sliding_x_speed = 180f;
+	public float sliding_y_speed = 170f;
+	public float jump_reducing_speed = 9f;
+	public float sliding_reducing_y_speed = 9f;
+	public float walking_speed = 150f;
+	public float spike_x_speed = 180f;
 	
 	public IEnumerator WakeUp()
 	{
@@ -85,7 +76,36 @@ public class Player : MonoBehaviour
 	
 	public void CorrectPlayerPos()
 	{
-		
+		if(is_right_user)
+		{
+			if(player.transform.localPosition.x < 30f)
+			{
+				player.transform.localPosition = new Vector3(30f, player.transform.localPosition.y, player.transform.localPosition.z);
+			}
+			if(player.transform.localPosition.x > 205f)
+			{
+				player.transform.localPosition = new Vector3(205f, player.transform.localPosition.y, player.transform.localPosition.z);
+			}
+			if(player.transform.localPosition.y < -75f)
+			{
+				player.transform.localPosition = new Vector3(player.transform.localPosition.x, -75f , player.transform.localPosition.z);
+			}	
+		}
+		else
+		{
+			if(player.transform.localPosition.x > -30f)
+			{
+				player.transform.localPosition = new Vector3(-30f, player.transform.localPosition.y, player.transform.localPosition.z);
+			}
+			if(player.transform.localPosition.x < -205f)
+			{
+				player.transform.localPosition = new Vector3(-205f, player.transform.localPosition.y, player.transform.localPosition.z);
+			}
+			if(player.transform.localPosition.y < -75f)
+			{
+				player.transform.localPosition = new Vector3(player.transform.localPosition.x, -75f , player.transform.localPosition.z);
+			}
+		}
 	}
 	// Use this for initialization
 	void Start () 

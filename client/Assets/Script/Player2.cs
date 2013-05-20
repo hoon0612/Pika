@@ -4,7 +4,6 @@ using System.Collections;
 public class Player2 : Player 
 {
 	bool motion_change = false;
-	
 	public IEnumerator WakeUp()
 	{
 		yield return new WaitForSeconds(0.2f);
@@ -19,42 +18,19 @@ public class Player2 : Player
 	
 	void Awake()
 	{
-		isEnemy = true;
-		Debug.Log(isEnemy);
+		is_right_user = false;
 	}
 	
 	// Use this for initialization
 	void Start () {
 		player = this.gameObject;
 		col = player.GetComponent<CapsuleCollider>();
-		player_animation = player.transform.FindChild("pikachu").GetComponent<tk2dAnimatedSprite>();
-		isEnemy = true;
-	}
-	void CorrectPlayerPos()
-	{
-		if(player.transform.localPosition.x > -30f)
-		{
-			player.transform.localPosition = new Vector3(-30f, player.transform.localPosition.y, player.transform.localPosition.z);
-		}
-		if(player.transform.localPosition.x < -205f)
-		{
-			player.transform.localPosition = new Vector3(-205f, player.transform.localPosition.y, player.transform.localPosition.z);
-		}
-		if(player.transform.localPosition.y < -80f)
-		{
-			player.transform.localPosition = new Vector3(player.transform.localPosition.x, -80f , player.transform.localPosition.z);
-		}
+		player_animation = player.transform.FindChild("playerSprite").GetComponent<tk2dAnimatedSprite>();
 	}
 	
 	// Update is called once per frame
 	void FixedUpdate () 
 	{
-		if(isEnemy)
-		{
-			
-		}
-		else
-		{
 			if(walking&&!leftSliding&&!rightSliding)
 			{
 				player.rigidbody.velocity = new Vector3(vel_x, vel_y, 0);	
@@ -126,7 +102,7 @@ public class Player2 : Player
 					StartCoroutine(WakeUp());
 				}
 			}
-		}
+		
 		CorrectPlayerPos();
 	}
 }

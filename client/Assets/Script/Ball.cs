@@ -53,12 +53,12 @@ public class Ball : MonoBehaviour
 			}
 			else if(col.name.Equals("boxCol"))
 			{
-				if(pos.x > 20)
+				if(pos.x > 0)
 				{
 					vel_x = -vel_x;
 					ball.transform.localPosition = new Vector3(25f, ball.transform.localPosition.y,ball.transform.localPosition.z);
 				}
-				else if(pos.x < -20)
+				else if(pos.x < 0)
 				{
 					vel_x = -vel_x;
 					ball.transform.localPosition = new Vector3(-25f, ball.transform.localPosition.y,ball.transform.localPosition.z);
@@ -66,14 +66,15 @@ public class Ball : MonoBehaviour
 				trigger_col_net_body = true;
 			}
 		}
-		if(col.name.Equals("Player1")&&!trigger_col_player) // ball <-> player
+		if(col.name.Equals("rightUser")&&!trigger_col_player) // ball <-> player
 		{
 			is_spiked = false;
 			ball_anim.Play("Idle");
-			Player1 p = col.gameObject.GetComponent<Player1>();
+			Debug.Log("aa");
+			Player p = col.gameObject.GetComponent<Player>();
 			if(!p.upperSpike && !p.middleSpike && !p.lowerSpike)
 			{
-				vel_x = vel_x/10 + p.vel_x/2 + DirVectorElement(ball.transform.localPosition.x, p.transform.localPosition.x-10);
+				vel_x = vel_x/5 + p.vel_x/2 + DirVectorElement(ball.transform.localPosition.x, p.transform.localPosition.x-10);
 				if(ball.transform.localPosition.y < p.transform.localPosition.y)
 					vel_y = -vel_y + p.vel_y/2;
 				else
@@ -108,17 +109,48 @@ public class Ball : MonoBehaviour
 				ball_anim.Play("Spike");
 			}
 		}
-		else if(col.name.Equals("Player2")&&!trigger_col_player)
+		else if(col.name.Equals("leftUser")&&!trigger_col_player)
 		{
 			is_spiked = false;
 			ball_anim.Play("Idle");
-			Player2 p = col.gameObject.GetComponent<Player2>();
-			vel_x = vel_x/10 + p.vel_x/2 + DirVectorElement(ball.transform.localPosition.x, p.transform.localPosition.x+10);
-			if(ball.transform.localPosition.y < p.transform.localPosition.y)
-				vel_y = -vel_y + p.vel_y/2;
-			else
-				vel_y = -vel_y + p.vel_y/2 + DirVectorElement(ball.transform.localPosition.y, p.transform.localPosition.y);
-			trigger_col_player = true;
+			Debug.Log("aa");
+			Player p = col.gameObject.GetComponent<Player>();
+			if(!p.upperSpike && !p.middleSpike && !p.lowerSpike)
+			{
+				vel_x = vel_x/5 + p.vel_x/2 + DirVectorElement(ball.transform.localPosition.x, p.transform.localPosition.x-10);
+				if(ball.transform.localPosition.y < p.transform.localPosition.y)
+					vel_y = -vel_y + p.vel_y/2;
+				else
+					vel_y = -vel_y + p.vel_y/2 + DirVectorElement(ball.transform.localPosition.y, p.transform.localPosition.y);
+				trigger_col_player = true;	
+			}
+			else if(p.upperSpike && !p.middleSpike && !p.lowerSpike)
+			{
+				Debug.Log("Upper Spike!");
+				vel_y = 300f;
+				vel_x = 350f;
+				p.upperSpike = false;
+				is_spiked = true;
+				ball_anim.Play("Spike");
+			}
+			else if(!p.upperSpike && p.middleSpike && !p.lowerSpike)
+			{
+				Debug.Log("Middle Spike!");
+				vel_y = -50f;
+				vel_x = 400f;
+				p.middleSpike = false;
+				is_spiked = true;
+				ball_anim.Play("Spike");
+			}
+			else if(!p.upperSpike && !p.middleSpike && p.lowerSpike)
+			{
+				Debug.Log("Lower Spike!");
+				vel_y = -400f;
+				vel_x = 100f;
+				p.lowerSpike = false;
+				is_spiked = true;
+				ball_anim.Play("Spike");
+			}
 		}
 	}
 	
@@ -141,7 +173,7 @@ public class Ball : MonoBehaviour
 	
 	float DirVectorElement(float elem_1, float elem_2)
 	{
-		return (elem_1-elem_2)/20;
+		return (elem_1-elem_2)*10f;
 	}
 	
 	// Use this for initialization
@@ -153,8 +185,8 @@ public class Ball : MonoBehaviour
 		pos = ball.transform.localPosition;
 		
 		vel_x = 0f;
-		vel_y = -250f;
-		gravity = -5f;
+		vel_y = -300f;
+		gravity = -3.5f;
 		ball_anim = GameObject.Find("Ball").transform.FindChild("ball").GetComponent<tk2dAnimatedSprite>();
 	}
 	
@@ -163,10 +195,10 @@ public class Ball : MonoBehaviour
 	{
 		if(!is_spiked) //restrict ball's speed
 		{
-			if(vel_x > 250f) vel_x = 250f;
-			if(vel_x < -250f) vel_x = -250f;
-			if(vel_y > 400f) vel_y = 400f;
-			if(vel_y < -400f) vel_y = -400f;	
+			if(vel_x > 100f) vel_x = 100f;
+			if(vel_x < -100f) vel_x = -100f;
+			if(vel_y > 300f) vel_y = 300f;
+			if(vel_y < -300f) vel_y = -300f;	
 		}
 		vel_y+=gravity;
 		
