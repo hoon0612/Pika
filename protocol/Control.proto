@@ -2,10 +2,10 @@ package Pika.Game;
 
 message Control {
  message Status {
-    required float loc_x = 3;
-    required float loc_y = 4;
-    optional float vel_x = 5;
-    optional float vel_y = 6;
+    required float loc_x = 1;
+    required float loc_y = 2;
+    optional float vel_x = 3;
+    optional float vel_y = 4;
   }
 
   required string id = 1;
