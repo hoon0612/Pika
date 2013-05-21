@@ -71,10 +71,15 @@ server.on "message", (msg, rinfo) ->
 
     client = lookup_client rinfo
 
-    if  client == undefined
+    if client == undefined
         client = add_client rinfo
 
-    enemy = enemy_client client
+    # client == undefined if add_client failed
+        
+    if client == undefined
+        enemy = undefined
+    else
+        enemy = enemy_client client
 
     if enemy != undefined
     

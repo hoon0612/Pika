@@ -21,7 +21,21 @@ stdin.on 'data', (key) ->
     if key == 'q'
         client.close()
     
-    myMessage = new Control {"name": "Hello", "time": 56, "loc_x": 4.1, "loc_y": 4.3, "vel_x": 4.5, "vel_y": 4.7}
+    myMessage = new Control
+        "id": "Hello"
+        "time": 56
+        "Character" :
+            "loc_x": 4.1
+            "loc_y": 4.3
+            "vel_x": 4.5
+            "vel_y": 4.7
+        "Ball" :
+            "loc_x": 4.1
+            "loc_y": 4.3
+            "vel_x": 4.5
+            "vel_y": 4.7
+    
+
 
     buf = myMessage.encode().toBuffer()
 
