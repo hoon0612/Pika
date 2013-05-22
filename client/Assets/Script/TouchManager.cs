@@ -3,11 +3,12 @@ using System.Collections;
 
 public class TouchManager : MonoBehaviour 
 {
+	GameManager gameManager;
 	GameObject player; //range x : 30~205 range y : -80~
 	Player1 player1;
 	Player2 player2;
 	Player user;
-	
+	public static bool is_touching = false;
 	bool is_right_user; //if game player is on right of the device's screen, then this variable will have true, else false.
 	float jump_touch_dist = Screen.height/8;
 	
@@ -41,6 +42,7 @@ public class TouchManager : MonoBehaviour
 	// Use this for initialization
 	void Start () 
 	{
+		gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
 		GameObject rightUser = GameObject.Find("rightUser").gameObject;
 		GameObject leftUser = GameObject.Find("leftUser").gameObject;
 		is_right_user = true;
@@ -64,6 +66,7 @@ public class TouchManager : MonoBehaviour
 			player2.is_right_user = true;
 			player = leftUser;
 		}
+		gameManager.SettingPlayers();
 		touchFrame = new TouchFrame();
 	}
 	
@@ -93,7 +96,7 @@ public class TouchManager : MonoBehaviour
 			touchFrame.boundary_minus_y = gesture.Position.y;
 			touchFrame.boundary_plus_x = touchFrame.boundary_minus_x + touchFrame.size_x;
 			touchFrame.boundary_plus_y = touchFrame.boundary_minus_y + touchFrame.size_y;
-			player1.walking = true;
+			is_touching = true;
 		}
 		else if(phase == ContinuousGesturePhase.Updated)       
   		{
@@ -108,13 +111,7 @@ public class TouchManager : MonoBehaviour
 			{
 				movePos = -30f - ((touchFrame.boundary_plus_x - touchFrame.touch_pos.x) / touchFrame.size_x * 175f);
 			}
-			if(movePos - 5 > player.transform.localPosition.x)
-				mst = 1;
-			else if(movePos + 5 < player.transform.localPosition.x)
-				mst = -1;
-			else mst = 0;
-			if(player1.can_swipe)
-				player1.vel_x = mst * player1.walking_speed;
+			gameManager.P1Walking(movePos);
 			
 			//update touch Frame's cursor and touch Frame's boundary
 			touchFrame.touch_pos = gesture.Position;
@@ -149,47 +146,38 @@ public class TouchManager : MonoBehaviour
 			
 			if(player1.can_swipe)
 			{
-				if(!player1.jumping && !player1.leftSliding && !player1.rightSliding)
+				if(player1.pMotion == MotionType.WALK)//if(!player1.jumping && !player1.leftSliding && !player1.rightSliding &&!is_jumped)
 				{
 					if(touchFrame.touch_pos.y - touchFrame.boundary_minus_y > jump_touch_dist)//jump touch event
 					{
-						player1.jumping = true;
-						player1.vel_y = player1.jump_speed;
+						gameManager.P1Jumping();
 					}
 					else if(deltaMove.x < -40) // left sliding touch event
 					{
-						player1.leftSliding = true;
-						player1.vel_x = -player1.sliding_x_speed;
-						player1.vel_y = player1.sliding_y_speed;
-						player1.can_swipe = false;
+						gameManager.P1Sliding(false);
 					}
 					else if(deltaMove.x > 40) // right sliding touch event
 					{
-						player1.rightSliding = true;
-						player1.vel_x = player1.sliding_x_speed;
-						player1.vel_y = player1.sliding_y_speed;
-						player1.can_swipe = false;
+						gameManager.P1Sliding(true);
 					}
 				}
-				else if(player1.jumping && !player1.upperSpike && !player1.middleSpike && !player1.lowerSpike)
+				else if(player1.pMotion == MotionType.JUMP)//(player1.jumping && !player1.upperSpike && !player1.middleSpike && !player1.lowerSpike)
 				{
 					if(deltaMove.y > 25)//upper spike
 					{
-						player1.upperSpike = true;
+						gameManager.P1Spiking(SpikeType.HIGH, false);
 					}
 					else if(deltaMove.y < -25)//lower spike
 					{
-						player1.lowerSpike = true;
+						gameManager.P1Spiking(SpikeType.LOW, false);
 					}
 					else if(deltaMove.x > 20)//middle spike
 					{
-						player1.middleSpike = true;
-						player1.vel_x = player1.spike_x_speed;
+						gameManager.P1Spiking(SpikeType.MID, false);
 					}
 					else if(deltaMove.x < -20)//middle spike
 					{
-						player1.middleSpike = true;
-						player1.vel_x = -player1.spike_x_speed;
+						gameManager.P1Spiking(SpikeType.MID, true);
 					}
 				}
 			}
@@ -197,11 +185,7 @@ public class TouchManager : MonoBehaviour
 		}
 		else // it is called when user get off the hand from screen
 		{
-			if(!player1.upperSpike && !player1.middleSpike && !player1.lowerSpike)
-				player.rigidbody.velocity = new Vector3(0, player1.vel_y, 0);
-			else
-				player.rigidbody.velocity = new Vector3(player1.vel_x, player1.vel_y, 0);
-			player1.walking = false;
+			is_touching = false;
 		}
 		
 	}

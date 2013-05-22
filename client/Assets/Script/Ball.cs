@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using System.Threading;
 
 public class Ball : MonoBehaviour 
 {
@@ -12,37 +13,11 @@ public class Ball : MonoBehaviour
 	bool trigger_col_player = false;
 	bool trigger_col_net_head = false;
 	bool trigger_col_net_body = false;
-	bool trigger_col_wall = false;
 	tk2dAnimatedSprite ball_anim;
+	GameManager gameManager;
 	
 	void OnTriggerEnter(Collider col)
 	{
-		if(!trigger_col_wall)
-		{
-			if(col.name.Equals("ceilingCol"))
-			{
-				vel_y = -vel_y +gravity;
-				ball.transform.localPosition += new Vector3(0,-1,0);
-				Debug.Log("c!");
-			}
-			if(col.name.Equals("floorCol"))
-			{
-				vel_y = -vel_y;
-				ball.transform.localPosition += new Vector3(0,1,0);
-				Debug.Log("f");
-			}
-			if(col.name.Equals("leftCol"))
-			{
-				vel_x = -vel_x;
-				ball.transform.localPosition += new Vector3(1,0,0);
-			}
-			if(col.name.Equals("rightCol"))
-			{
-				vel_x = -vel_x;
-				ball.transform.localPosition += new Vector3(-1,0,0);
-			}
-			trigger_col_wall = true;
-		}
 		if(!trigger_col_net_head && !trigger_col_net_body) //ball <-> net
 		{
 			if(col.name.Equals("roundCol"))
@@ -70,9 +45,8 @@ public class Ball : MonoBehaviour
 		{
 			is_spiked = false;
 			ball_anim.Play("Idle");
-			Debug.Log("aa");
 			Player p = col.gameObject.GetComponent<Player>();
-			if(!p.upperSpike && !p.middleSpike && !p.lowerSpike)
+			if(p.pMotion != MotionType.SPIKE)
 			{
 				vel_x = vel_x/5 + p.vel_x/2 + DirVectorElement(ball.transform.localPosition.x, p.transform.localPosition.x-10);
 				if(ball.transform.localPosition.y < p.transform.localPosition.y)
@@ -81,30 +55,30 @@ public class Ball : MonoBehaviour
 					vel_y = -vel_y + p.vel_y/2 + DirVectorElement(ball.transform.localPosition.y, p.transform.localPosition.y);
 				trigger_col_player = true;	
 			}
-			else if(p.upperSpike && !p.middleSpike && !p.lowerSpike)
+			else if(p.pSpike == SpikeType.HIGH)
 			{
 				Debug.Log("Upper Spike!");
 				vel_y = 300f;
 				vel_x = -350f;
-				p.upperSpike = false;
+				p.pSpike = SpikeType.NONE;
 				is_spiked = true;
 				ball_anim.Play("Spike");
 			}
-			else if(!p.upperSpike && p.middleSpike && !p.lowerSpike)
+			else if(p.pSpike == SpikeType.MID)
 			{
 				Debug.Log("Middle Spike!");
 				vel_y = -50f;
 				vel_x = -400f;
-				p.middleSpike = false;
+				p.pSpike = SpikeType.NONE;
 				is_spiked = true;
 				ball_anim.Play("Spike");
 			}
-			else if(!p.upperSpike && !p.middleSpike && p.lowerSpike)
+			else if(p.pSpike == SpikeType.LOW)
 			{
 				Debug.Log("Lower Spike!");
 				vel_y = -400f;
-				vel_x = -100f;
-				p.lowerSpike = false;
+				vel_x = -160f;
+				p.pSpike = SpikeType.NONE;
 				is_spiked = true;
 				ball_anim.Play("Spike");
 			}
@@ -113,9 +87,8 @@ public class Ball : MonoBehaviour
 		{
 			is_spiked = false;
 			ball_anim.Play("Idle");
-			Debug.Log("aa");
 			Player p = col.gameObject.GetComponent<Player>();
-			if(!p.upperSpike && !p.middleSpike && !p.lowerSpike)
+			if(p.pMotion != MotionType.SPIKE)
 			{
 				vel_x = vel_x/5 + p.vel_x/2 + DirVectorElement(ball.transform.localPosition.x, p.transform.localPosition.x-10);
 				if(ball.transform.localPosition.y < p.transform.localPosition.y)
@@ -124,30 +97,30 @@ public class Ball : MonoBehaviour
 					vel_y = -vel_y + p.vel_y/2 + DirVectorElement(ball.transform.localPosition.y, p.transform.localPosition.y);
 				trigger_col_player = true;	
 			}
-			else if(p.upperSpike && !p.middleSpike && !p.lowerSpike)
+			else if(p.pSpike == SpikeType.HIGH)
 			{
 				Debug.Log("Upper Spike!");
 				vel_y = 300f;
 				vel_x = 350f;
-				p.upperSpike = false;
+				p.pSpike = SpikeType.NONE;
 				is_spiked = true;
 				ball_anim.Play("Spike");
 			}
-			else if(!p.upperSpike && p.middleSpike && !p.lowerSpike)
+			else if(p.pSpike == SpikeType.MID)
 			{
 				Debug.Log("Middle Spike!");
 				vel_y = -50f;
 				vel_x = 400f;
-				p.middleSpike = false;
+				p.pSpike = SpikeType.NONE;
 				is_spiked = true;
 				ball_anim.Play("Spike");
 			}
-			else if(!p.upperSpike && !p.middleSpike && p.lowerSpike)
+			else if(p.pSpike == SpikeType.LOW)
 			{
 				Debug.Log("Lower Spike!");
 				vel_y = -400f;
-				vel_x = 100f;
-				p.lowerSpike = false;
+				vel_x = 160f;
+				p.pSpike = SpikeType.NONE;
 				is_spiked = true;
 				ball_anim.Play("Spike");
 			}
@@ -160,7 +133,6 @@ public class Ball : MonoBehaviour
 		if(trigger_col_player){
 			
 		}
-		
 	}
 	
 	void OnTriggerExit(Collider col)
@@ -168,7 +140,6 @@ public class Ball : MonoBehaviour
 		trigger_col_player = false;
 		trigger_col_net_head = false;
 		trigger_col_net_body = false;
-		trigger_col_wall = false;
 	}
 	
 	float DirVectorElement(float elem_1, float elem_2)
@@ -176,12 +147,49 @@ public class Ball : MonoBehaviour
 		return (elem_1-elem_2)*10f;
 	}
 	
+	void CorrectBallPos()
+	{
+		Vector3 pos = GetBallPos();
+		if(pos.x < -195f)
+		{
+			vel_x = -1 * vel_x;
+			SetBallPos(new Vector3(-195f,pos.y, pos.z));
+		}
+		if(pos.x > 195f)
+		{
+			vel_x = -1 * vel_x;
+			SetBallPos(new Vector3(195f,pos.y, pos.z));
+		}
+		if(pos.y < -85f)
+		{
+			vel_y = -1 * vel_y;	
+			SetBallPos(new Vector3(pos.x, -85f, pos.z));
+			//Debug.Log(vel_y);
+		}
+		if(pos.y > 130f)
+		{
+			vel_y = -1* vel_y + gravity;
+			SetBallPos(new Vector3(pos.x, 130f, pos.z));
+		}
+	}
+	
+	Vector3 GetBallPos()
+	{
+		return ball.transform.localPosition;
+	}
+	
+	void SetBallPos(Vector3 arg)
+	{
+		ball.transform.localPosition = arg;
+	}
+	
 	// Use this for initialization
 	void Start () 
 	{
 		ball = this.gameObject;
 		netPos = GameObject.Find("net").transform.localPosition + new Vector3(0, 50, 0);
-		Debug.Log(netPos);
+		gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
+		
 		pos = ball.transform.localPosition;
 		
 		vel_x = 0f;
@@ -193,40 +201,41 @@ public class Ball : MonoBehaviour
 	// Update is called once per frame
 	void FixedUpdate () 
 	{
+		CorrectBallPos();
 		if(!is_spiked) //restrict ball's speed
 		{
-			if(vel_x > 100f) vel_x = 100f;
-			if(vel_x < -100f) vel_x = -100f;
-			if(vel_y > 300f) vel_y = 300f;
-			if(vel_y < -300f) vel_y = -300f;	
+			if(vel_x > 120f) vel_x = 120f;
+			if(vel_x < -120f) vel_x = -120f;
+			if(vel_y > 250f) vel_y = 250f;
+			if(vel_y < -250f) vel_y = -250f;	
 		}
 		vel_y+=gravity;
 		
 		//ball.transform.localPosition += new Vector3(vel_x,vel_y,0f);
-		ball.rigidbody.velocity = new Vector3(vel_x, vel_y + gravity, 0);
+		ball.rigidbody.velocity = new Vector3(vel_x, vel_y, 0);
 		pos = ball.transform.localPosition;
 		
 		//correct ball's local position 
-		if(pos.x < -196f)
+		/*if(ball.transform.localPosition.x < -196f)
 		{
 			//vel_x = -1 * vel_x;
 			ball.transform.localPosition = new Vector3(-196f,ball.transform.localPosition.y, ball.transform.localPosition.z);
 		}
-		if(pos.x > 196f)
+		if(ball.transform.localPosition.x > 196f)
 		{
 			//vel_x = -1 * vel_x;
 			ball.transform.localPosition = new Vector3(196f,ball.transform.localPosition.y, ball.transform.localPosition.z);
 		}
-		if(pos.y < -100f)
+		if(ball.transform.localPosition.y < -85f)
 		{
 			//vel_y = -1 * vel_y;	
-			ball.transform.localPosition = new Vector3(ball.transform.localPosition.x, -100f, ball.transform.localPosition.z);
+			ball.transform.localPosition = new Vector3(ball.transform.localPosition.x, -85f, ball.transform.localPosition.z);
 		}
-		if(pos.y > 133f)
+		if(ball.transform.localPosition.y > 133f)
 		{
 			//vel_y = -1* vel_y + gravity;
 			ball.transform.localPosition = new Vector3(ball.transform.localPosition.x, 132f, ball.transform.localPosition.z);
-		}
+		}*/
 		/*if(pos.x >= 14f && pos.x <= 24f && pos.y <= 12f)
 		{
 			vel_x = -vel_x;

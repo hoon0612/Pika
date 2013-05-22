@@ -1,41 +1,11 @@
 using UnityEngine;
 using System.Collections;
-using System.IO;
-using ProtoBuf;
-using Pika.Game;
-using System.Net;
-using System.Net.Sockets;
 
 public class Player1 : Player 
 {
-	IPEndPoint ep;
-	Socket sock;
-	bool motion_change = false;
-	tk2dAnimatedSprite playerSprite;
-	public IEnumerator WakeUp()
-	{
-		yield return new WaitForSeconds(0.2f);
-		if(is_right_user)
-		{
-			if(player.transform.FindChild("playerSprite").localRotation.y == 0)
-				player.transform.FindChild("playerSprite").localRotation = Quaternion.Euler(new Vector3(0,180,0));	
-		}
-		else
-		{
-			if(player.transform.FindChild("playerSprite").localRotation.y != 0)
-				player.transform.FindChild("playerSprite").localRotation = Quaternion.Euler(new Vector3(0,0,0));
-		}
-		
-		playerSprite.Play("Idle");
-		vel_y = 0;
-		vel_x = 0;
-		motion_change = false;
-		can_swipe = true;
-	}
-	
 	void Awake()
 	{
-		is_right_user = true;
+		is_right_user = false;
 	}
 	
 	// Use this for initialization
@@ -43,46 +13,29 @@ public class Player1 : Player
 		player = this.gameObject;
 		col = player.GetComponent<CapsuleCollider>();
 		playerSprite = player.transform.FindChild("playerSprite").GetComponent<tk2dAnimatedSprite>();
-		ep = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 5567);
-		sock = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
 	}
 	
 	// Update is called once per frame
 	void FixedUpdate () 
 	{
-		if(walking&&!leftSliding&&!rightSliding)
-		{
-			player.rigidbody.velocity = new Vector3(vel_x, vel_y, 0);	
-			Pika.Game.Control msg = new Pika.Game.Control {
-				id = "aad",
-				Character = new Pika.Game.Control.Status {
-					loc_x = player.transform.localPosition.x,
-					loc_y = player.transform.localPosition.y,
-					vel_x = player.rigidbody.velocity.x,
-					vel_y = player.rigidbody.velocity.y
-				}
-			};
-			
-			
-			Debug.Log(msg.ToString().Length);
-			byte [] buf = new byte [32];
-			Stream stream = new MemoryStream(buf);
-			Serializer.Serialize<Pika.Game.Control>(stream,msg);
-			int bufsize = 0;
-			for(int i = 0 ; i < buf.Length ; i++)
+		if(pMotion == MotionType.WALK || pMotion == MotionType.JUMP || pMotion == MotionType.SPIKE)
+		{	
+			if(pMotion == MotionType.WALK)
 			{
-				if(buf[i] != null)
-					bufsize ++;
+				if(!TouchManager.is_touching)
+				{
+					vel_x = 0;
+					vel_y = 0;
+				}
+				else
+				{
+					vel_y = 0;
+				}
 			}
-			Debug.Log(bufsize);
-			byte [] sendBuf = new byte[bufsize];
-			sock.SendTo(buf, ep);
-			
-			
-			//GameManager g = GameObject.Find("GameManager").GetComponent<GameManager>();
-			//g.SendUDPMessage(buf);
+			player.rigidbody.velocity = new Vector3(vel_x, vel_y, 0);	
 		}
-		if(jumping&&!leftSliding&&!rightSliding)
+		
+		if(pMotion == MotionType.JUMP && pMotion != MotionType.SLIDE)
 		{
 			if(!motion_change)
 			{
@@ -99,60 +52,71 @@ public class Player1 : Player
 				player.rigidbody.velocity = new Vector3(vel_x, vel_y, 0);
 				player.transform.localPosition = new Vector3(player.transform.localPosition.x, -75f, player.transform.localPosition.z);
 				motion_change = false;
-				jumping = false;
+				pMotion = MotionType.WALK;
 				playerSprite.Play("Idle");
-			}
-			if(upperSpike || middleSpike || lowerSpike)
-			{
-				StartCoroutine(SetSpikeFalse());
-			}
-		}
-		else if(leftSliding&&!jumping&&!rightSliding)
-		{
-			if(!motion_change)
-			{
-				motion_change = true;
-				playerSprite.Play("Slide");
-				if(!is_right_user)
-					player.transform.FindChild("playerSprite").localRotation = Quaternion.Euler(new Vector3(0,180,0));
-			}
-			vel_y -= sliding_reducing_y_speed;
-			player.rigidbody.velocity = new Vector3(vel_x, vel_y, 0);
-			if(player.transform.localPosition.y < -75)
-			{
-				vel_y = 0;
-				vel_x = 0;
-				player.rigidbody.velocity = new Vector3(vel_x, vel_y, 0);
-				player.transform.localPosition = new Vector3(player.transform.localPosition.x, -75, player.transform.localPosition.z);
-				motion_change = false;
-				leftSliding = false;
-				StartCoroutine(WakeUp());
-			}
-			
-		}
-		else if(rightSliding&&!jumping&&!leftSliding)
-		{
-			if(!motion_change)
-			{
-				motion_change = true;
-				playerSprite.Play("Slide");
-				if(is_right_user)
-					player.transform.FindChild("playerSprite").localRotation = Quaternion.Euler(new Vector3(0,0,0));
-			}
-			vel_y -= sliding_reducing_y_speed;
-			player.rigidbody.velocity = new Vector3(vel_x, vel_y, 0);
-			if(player.transform.localPosition.y < -75)
-			{
-				vel_x = 0;
-				vel_y = 0;
-				player.rigidbody.velocity = new Vector3(vel_x, vel_y, 0);
-				player.transform.localPosition = new Vector3(player.transform.localPosition.x, -75, player.transform.localPosition.z);
-				motion_change = false;
-				rightSliding = false;
-				StartCoroutine(WakeUp());
 			}
 		}
 		
+		if(pMotion == MotionType.SPIKE && pMotion != MotionType.SLIDE)
+		{
+			if(!motion_change_spike)
+			{
+				motion_change_spike = true;
+				playerSprite.Play("Jump");
+				Debug.Log("spike!");
+			}
+			vel_y -= jump_reducing_speed;
+			player.rigidbody.velocity -= new Vector3(0, jump_reducing_speed, 0);
+			StartCoroutine(SetSpikeFalse());
+			if(player.transform.localPosition.y < -75f)
+			{
+				vel_x = 0; // added
+				vel_y = 0;
+				player.rigidbody.velocity = new Vector3(vel_x, vel_y, 0);
+				player.transform.localPosition = new Vector3(player.transform.localPosition.x, -75f, player.transform.localPosition.z);
+				motion_change_spike = false;
+				motion_change = false;
+				pMotion = MotionType.WALK;
+				playerSprite.Play("Idle");
+			}
+		}
+		
+		else if(pMotion == MotionType.SLIDE && pMotion != MotionType.JUMP)
+		{
+			if(!motion_change)
+			{
+				motion_change = true;
+				playerSprite.Play("Slide");
+				if(vel_x > 0) // right slide
+				{
+					if(is_right_user)
+					{
+						playerSprite.transform.localRotation = Quaternion.Euler(new Vector3(0,0,0));
+						is_reversed = true;
+					}
+				}
+				else //left slide
+				{
+					if(!is_right_user)
+					{
+						playerSprite.transform.localRotation = Quaternion.Euler(new Vector3(0,180,0));
+						is_reversed = true;
+					}
+				}
+			}
+			vel_y -= sliding_reducing_y_speed;
+			player.rigidbody.velocity = new Vector3(vel_x, vel_y, 0);
+			if(player.transform.localPosition.y < -75)
+			{
+				vel_y = 0;
+				vel_x = 0;
+				player.rigidbody.velocity = new Vector3(vel_x, vel_y, 0);
+				player.transform.localPosition = new Vector3(player.transform.localPosition.x, -75, player.transform.localPosition.z);
+				motion_change = false;
+				pMotion = MotionType.WALK;
+				StartCoroutine(WakeUp());
+			}
+		}
 		CorrectPlayerPos();
 	}
 }
