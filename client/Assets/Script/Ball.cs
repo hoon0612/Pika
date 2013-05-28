@@ -48,11 +48,11 @@ public class Ball : MonoBehaviour
 			Player p = col.gameObject.GetComponent<Player>();
 			if(p.pMotion != MotionType.SPIKE)
 			{
-				vel_x = vel_x/5 + p.vel_x/2 + DirVectorElement(ball.transform.localPosition.x, p.transform.localPosition.x-10);
+				vel_x = vel_x/5 + p.vel_x/4 + DirVectorElement(ball.transform.localPosition.x, p.transform.localPosition.x-10);
 				if(ball.transform.localPosition.y < p.transform.localPosition.y)
-					vel_y = -vel_y + p.vel_y/2;
+					vel_y = -vel_y + p.vel_y/4;
 				else
-					vel_y = -vel_y + p.vel_y/2 + DirVectorElement(ball.transform.localPosition.y, p.transform.localPosition.y);
+					vel_y = -vel_y + p.vel_y/4 + DirVectorElement(ball.transform.localPosition.y, p.transform.localPosition.y);
 				trigger_col_player = true;	
 			}
 			else if(p.pSpike == SpikeType.HIGH)
@@ -90,11 +90,11 @@ public class Ball : MonoBehaviour
 			Player p = col.gameObject.GetComponent<Player>();
 			if(p.pMotion != MotionType.SPIKE)
 			{
-				vel_x = vel_x/5 + p.vel_x/2 + DirVectorElement(ball.transform.localPosition.x, p.transform.localPosition.x-10);
+				vel_x = vel_x/5 + p.vel_x/4 + DirVectorElement(ball.transform.localPosition.x, p.transform.localPosition.x+10);
 				if(ball.transform.localPosition.y < p.transform.localPosition.y)
-					vel_y = -vel_y + p.vel_y/2;
+					vel_y = -vel_y + p.vel_y/4;
 				else
-					vel_y = -vel_y + p.vel_y/2 + DirVectorElement(ball.transform.localPosition.y, p.transform.localPosition.y);
+					vel_y = -vel_y + p.vel_y/4 + DirVectorElement(ball.transform.localPosition.y, p.transform.localPosition.y);
 				trigger_col_player = true;	
 			}
 			else if(p.pSpike == SpikeType.HIGH)
@@ -130,8 +130,67 @@ public class Ball : MonoBehaviour
 	
 	void OnTriggerStay(Collider col)
 	{
-		if(trigger_col_player){
-			
+		if(col.name.Equals("rightUser")&&trigger_col_player) // ball <-> player
+		{
+			Player p = col.gameObject.GetComponent<Player>();
+			if(p.pSpike == SpikeType.HIGH)
+			{
+				Debug.Log("Upper Spike!");
+				vel_y = 300f;
+				vel_x = -350f;
+				p.pSpike = SpikeType.NONE;
+				is_spiked = true;
+				ball_anim.Play("Spike");
+			}
+			else if(p.pSpike == SpikeType.MID)
+			{
+				Debug.Log("Middle Spike!");
+				vel_y = -50f;
+				vel_x = -400f;
+				p.pSpike = SpikeType.NONE;
+				is_spiked = true;
+				ball_anim.Play("Spike");
+			}
+			else if(p.pSpike == SpikeType.LOW)
+			{
+				Debug.Log("Lower Spike!");
+				vel_y = -400f;
+				vel_x = -160f;
+				p.pSpike = SpikeType.NONE;
+				is_spiked = true;
+				ball_anim.Play("Spike");
+			}
+		}
+		else if(col.name.Equals("leftUser")&&trigger_col_player)
+		{
+			Player p = col.gameObject.GetComponent<Player>();
+			if(p.pSpike == SpikeType.HIGH)
+			{
+				Debug.Log("Upper Spike!");
+				vel_y = 300f;
+				vel_x = 350f;
+				p.pSpike = SpikeType.NONE;
+				is_spiked = true;
+				ball_anim.Play("Spike");
+			}
+			else if(p.pSpike == SpikeType.MID)
+			{
+				Debug.Log("Middle Spike!");
+				vel_y = -50f;
+				vel_x = 400f;
+				p.pSpike = SpikeType.NONE;
+				is_spiked = true;
+				ball_anim.Play("Spike");
+			}
+			else if(p.pSpike == SpikeType.LOW)
+			{
+				Debug.Log("Lower Spike!");
+				vel_y = -400f;
+				vel_x = 160f;
+				p.pSpike = SpikeType.NONE;
+				is_spiked = true;
+				ball_anim.Play("Spike");
+			}
 		}
 	}
 	
@@ -144,7 +203,7 @@ public class Ball : MonoBehaviour
 	
 	float DirVectorElement(float elem_1, float elem_2)
 	{
-		return (elem_1-elem_2)*10f;
+		return (elem_1-elem_2)*5f;
 	}
 	
 	void CorrectBallPos()
@@ -204,8 +263,8 @@ public class Ball : MonoBehaviour
 		CorrectBallPos();
 		if(!is_spiked) //restrict ball's speed
 		{
-			if(vel_x > 120f) vel_x = 120f;
-			if(vel_x < -120f) vel_x = -120f;
+			if(vel_x > 100f) vel_x = 100f;
+			if(vel_x < -100f) vel_x = -100f;
 			if(vel_y > 250f) vel_y = 250f;
 			if(vel_y < -250f) vel_y = -250f;	
 		}

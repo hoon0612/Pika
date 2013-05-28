@@ -74,8 +74,8 @@ public class Player : MonoBehaviour
 	public float sliding_y_speed = 140f;
 	public float jump_reducing_speed = 9f;
 	public float sliding_reducing_y_speed = 9f;
-	public float walking_speed = 150f;
-	public float spike_x_speed = 180f;
+	public float walking_speed = 170f;
+	public float spike_x_speed = 170f;
 	
 	public IEnumerator WakeUp()
 	{
@@ -91,7 +91,7 @@ public class Player : MonoBehaviour
 				player.transform.FindChild("playerSprite").localRotation = Quaternion.Euler(new Vector3(0,0,0));
 			}
 		}
-		
+		pMotion = MotionType.WALK;
 		playerSprite.Play("Idle");
 		vel_y = 0;
 		vel_x = 0;
@@ -102,13 +102,14 @@ public class Player : MonoBehaviour
 	
 	public	IEnumerator SetSpikeFalse()
 	{
-		yield return new WaitForSeconds(0.25f);
-		if(player.transform.localPosition.y > -74f)
+		yield return new WaitForSeconds(0.3f);
+		if(player.transform.localPosition.y > -75f)
 			pMotion = MotionType.JUMP;
 		else
 		{
 			pMotion = MotionType.WALK;
 			playerSprite.Play("Idle");
+			can_swipe = true;
 		}
 		pSpike = SpikeType.NONE;	
 		motion_change = false;
@@ -131,6 +132,10 @@ public class Player : MonoBehaviour
 			{
 				player.transform.localPosition = new Vector3(player.transform.localPosition.x, -75f , player.transform.localPosition.z);
 			}	
+			if(player.transform.localPosition.y > -75f && vel_y == 0)
+			{
+				player.transform.localPosition = new Vector3(player.transform.localPosition.x, -75f , player.transform.localPosition.z);
+			}
 		}
 		else
 		{
@@ -145,6 +150,21 @@ public class Player : MonoBehaviour
 			if(player.transform.localPosition.y < -75f)
 			{
 				player.transform.localPosition = new Vector3(player.transform.localPosition.x, -75f , player.transform.localPosition.z);
+			}
+			if(player.transform.localPosition.y > -75f && vel_y == 0)
+			{
+				player.transform.localPosition = new Vector3(player.transform.localPosition.x, -75f , player.transform.localPosition.z);
+			}
+		}
+		if(is_reversed && pMotion != MotionType.SLIDE)
+		{
+			if(is_right_user)
+			{
+				player.transform.FindChild("playerSprite").localRotation = Quaternion.Euler(new Vector3(0,180,0));	
+			}
+			else
+			{
+				player.transform.FindChild("playerSprite").localRotation = Quaternion.Euler(new Vector3(0,0,0));
 			}
 		}
 	}

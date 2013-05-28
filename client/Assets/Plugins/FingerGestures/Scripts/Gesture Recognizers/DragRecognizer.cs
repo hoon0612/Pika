@@ -60,12 +60,12 @@ public class DragRecognizer : ContinuousGestureRecognizer<DragGesture>
             return false;
 
         // must have moved beyond move tolerance threshold
-        if( touches.GetAverageDistanceFromStart() < MoveTolerance )
-            return false;
+       // if( touches.GetAverageDistanceFromStart() < MoveTolerance )
+        //    return false;
 
         // all touches must be moving
-        if( !touches.AllMoving() )
-            return false;
+        //if( !touches.AllMoving() )
+         //   return false;
 
         // if multiple touches, make sure they're all going in roughly the same direction
         if( RequiredFingerCount >= 2 && ApplySameDirectionConstraint && !touches.MovingInSameDirection( 0.35f ) )
@@ -100,11 +100,11 @@ public class DragRecognizer : ContinuousGestureRecognizer<DragGesture>
         gesture.Position = touches.GetAveragePosition();
         gesture.LastDelta = gesture.DeltaMove;
         gesture.DeltaMove = gesture.Position - gesture.LastPos;
-
+		
         // if we are currently moving, or we were still moving last frame (allows listeners to detect when the finger is stationary when MoveDelta = 0)...
         if( gesture.DeltaMove.sqrMagnitude > 0 || gesture.LastDelta.sqrMagnitude > 0 )
             gesture.LastPos = gesture.Position;
-
+		
         RaiseEvent( gesture );
         return GestureRecognitionState.InProgress;
     }

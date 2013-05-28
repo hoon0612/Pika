@@ -20,17 +20,10 @@ public class Player1 : Player
 	{
 		if(pMotion == MotionType.WALK || pMotion == MotionType.JUMP || pMotion == MotionType.SPIKE)
 		{	
+			can_swipe = true;
 			if(pMotion == MotionType.WALK)
-			{
-				if(!TouchManager.is_touching)
-				{
-					vel_x = 0;
-					vel_y = 0;
-				}
-				else
-				{
-					vel_y = 0;
-				}
+			{	
+				vel_y = 0;
 			}
 			player.rigidbody.velocity = new Vector3(vel_x, vel_y, 0);	
 		}
@@ -42,6 +35,7 @@ public class Player1 : Player
 				motion_change = true;
 				playerSprite.Play("Jump");
 			}
+			vel_x = 0;
 			vel_y -= jump_reducing_speed;
 			player.rigidbody.velocity -= new Vector3(0, jump_reducing_speed, 0);
 			
@@ -57,13 +51,13 @@ public class Player1 : Player
 			}
 		}
 		
-		if(pMotion == MotionType.SPIKE && pMotion != MotionType.SLIDE)
+		else if(pMotion == MotionType.SPIKE && pMotion != MotionType.SLIDE)
 		{
 			if(!motion_change_spike)
 			{
 				motion_change_spike = true;
 				playerSprite.Play("Jump");
-				Debug.Log("spike!");
+				//Debug.Log("spike!");
 			}
 			vel_y -= jump_reducing_speed;
 			player.rigidbody.velocity -= new Vector3(0, jump_reducing_speed, 0);
@@ -95,7 +89,7 @@ public class Player1 : Player
 						is_reversed = true;
 					}
 				}
-				else //left slide
+				else if(vel_x < 0)//left slide
 				{
 					if(!is_right_user)
 					{
@@ -113,7 +107,6 @@ public class Player1 : Player
 				player.rigidbody.velocity = new Vector3(vel_x, vel_y, 0);
 				player.transform.localPosition = new Vector3(player.transform.localPosition.x, -75, player.transform.localPosition.z);
 				motion_change = false;
-				pMotion = MotionType.WALK;
 				StartCoroutine(WakeUp());
 			}
 		}
