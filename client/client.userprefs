@@ -1,8 +1,9 @@
 ﻿<Properties>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Script/JoyPad.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="../../../Downloads/MobileInput/Assets/Move_Joypad.cs">
     <Files>
-      <File FileName="Assets/Script/JoyPad.cs" Line="1" Column="1" />
+      <File FileName="../../../Downloads/MobileInput/Assets/Move_Joypad.cs" Line="6" Column="35" />
+      <File FileName="../../../Downloads/MobileInput/Assets/Joystick.cs" Line="34" Column="45" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
@@ -16,7 +17,7 @@
                 <Node name="Scripts" expanded="True" />
               </Node>
               <Node name="Script" expanded="True">
-                <Node name="JoyPad.cs" selected="True" />
+                <Node name="MoveJoypadPaddle.cs" selected="True" />
               </Node>
             </Node>
           </Node>

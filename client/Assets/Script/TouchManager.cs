@@ -29,10 +29,12 @@ public class TouchManager : MonoBehaviour
 	bool is_right_user; //if game player is on right of the device's screen, then this variable will have true, else false.
 	bool is_left_clckd = false;
 	bool is_right_clckd = false;
+	bool is_touching_joypad = false;
 	float touched_time = 0;
 	int dragFingerIdx;
 	float jump_touch_dist = Screen.height/8;
 	tk2dSprite sprite_bt_left, sprite_bt_right;
+	tk2dCamera cam;
 	TouchMotionEffect touchEffect;
 	public static TouchControllerType controller = TouchControllerType.JOYPAD;
 	
@@ -113,6 +115,8 @@ public class TouchManager : MonoBehaviour
 			GameObject.DestroyObject(joystick_bg as Object);
 			GameObject.DestroyObject(joystick_bar as Object);
 		}
+		cam = GameObject.Find("VollyBallCamera").GetComponent<tk2dCamera>();
+		SetJoyPadPos();
 	}
 	
 	// Update is called once per frame
@@ -163,7 +167,7 @@ public class TouchManager : MonoBehaviour
 				{
 					movePos = -30f - ((touchFrame.boundary_plus_x - touchFrame.touch_pos.x) / touchFrame.size_x * 175f);
 				}
-					gameManager.P1Walking(movePos);
+					gameManager.FrameP1Walking(movePos);
 				
 				//update touch Frame's cursor and touch Frame's boundary
 				touchFrame.touch_pos = gesture.Position;
@@ -297,79 +301,125 @@ public class TouchManager : MonoBehaviour
 				}
 			}
 				
-		else if(dragFingerIdx == finger.Index && gesture.Phase == ContinuousGesturePhase.Ended)
-		{
-			if(touchEvent == TouchEvent.LEFT)
+			else if(dragFingerIdx == finger.Index && gesture.Phase == ContinuousGesturePhase.Ended)
 			{
-				sprite_bt_left.SetSprite("bubble_red");	
-				is_left_touching = false;
-				touchEvent = TouchEvent.NONE;
+				if(touchEvent == TouchEvent.LEFT)
+				{
+					sprite_bt_left.SetSprite("bubble_red");	
+					is_left_touching = false;
+					touchEvent = TouchEvent.NONE;
+				}
+				if(touchEvent == TouchEvent.RIGHT)
+				{		
+					sprite_bt_right.SetSprite("bubble_red");
+					is_right_touching = false;
+					touchEvent = TouchEvent.NONE;
+				}
+				else
+				{
+					sprite_bt_left.SetSprite("bubble_red");	
+					is_left_touching = false;
+					sprite_bt_right.SetSprite("bubble_red");
+					is_right_touching = false;
+				}
 			}
-			if(touchEvent == TouchEvent.RIGHT)
-			{		
-				sprite_bt_right.SetSprite("bubble_red");
-				is_right_touching = false;
-				touchEvent = TouchEvent.NONE;
-			}
-			else
-			{
-				sprite_bt_left.SetSprite("bubble_red");	
-				is_left_touching = false;
-				sprite_bt_right.SetSprite("bubble_red");
-				is_right_touching = false;
-			}
-			
-			//is_touching = false;
 		}
+		else
+		{
+			//FingerGestures.Finger finger = gesture.Fingers[0];
+			Vector3 pos = Vector3.zero;
+			if(is_right_user)
+				pos = cam.camera.ScreenToWorldPoint(new Vector3(gesture.Position.x, gesture.Position.y, 0)) - new Vector3(432/2 - 130, 306/2 - 50, -7);
+			else
+				pos = cam.camera.ScreenToWorldPoint(new Vector3(gesture.Position.x, gesture.Position.y, 0)) - new Vector3(432/2 + 130, 306/2 + 50, -7);
+			Debug.Log(pos);
+			if(gesture.Phase == ContinuousGesturePhase.Started)
+			{
+				if(gesture.Selection == joystick_bg || gesture.Selection == joystick_bar)
+				{
+					joystick_bar.transform.localPosition = pos;
+					is_touching_joypad = true;
+				}
+				//dragFingerIdx = finger.Index;
+			}
+			else if(is_touching_joypad)
+			{
+				if(gesture.Phase == ContinuousGesturePhase.Updated )
+				{
+					joystick_bar.transform.localPosition = SetJoyPaddlePos(pos);
+					Vector3 paddlePos = joystick_bar.transform.localPosition;
+					
+					if(paddlePos.y >= 15 && player1.pMotion == MotionType.WALK && player1.can_swipe)
+					{
+						gameManager.P1Jumping();
+					}
+					else if(paddlePos.x < -15)
+					{
+						gameManager.JoypadP1Walking(true);
+					}
+					else if(paddlePos.x > 15)
+					{
+						gameManager.JoypadP1Walking(false);
+					} 
+					else if(paddlePos.x <=15 && paddlePos.x >= -15 && paddlePos.y < 15)
+					{
+						gameManager.P1NoneTouching();
+					}
+					
+				}
+				else
+				{
+					joystick_bar.transform.localPosition = new Vector3(0,0,-3);
+					gameManager.P1NoneTouching();
+					is_touching_joypad = false;
+				}
+			}
 		}
 	}
 	
-	
-	/*void OnLongPress(LongPressGesture gesture)
+	void OnTap(TapGesture gesture)
 	{
-		Debug.Log(gesture.Selection);
-			
-			if(gesture.Selection == bt_left && !is_left_clckd)
-			{
-				//gameManager.TmpP1Walking(true);
-				touchEvent = TouchEvent.LEFT;
-				sprite_bt_left.SetSprite("bubble_orange");
-				is_touching = true;
-				Debug.Log("left Button is selected!");
-				touched_time = Time.time;
-				is_left_clckd = true;
-				if(is_right_clckd)
-					is_right_clckd = false;
-			}
+		if(controller != TouchControllerType.JOYPAD)
+			return;
 		
-			else if(gesture.Selection == bt_left && is_left_clckd && Time.time - touched_time < 0.65f)
+		if(gesture.Selection == bt_spike)
+		{
+			Vector3 paddlePos = joystick_bar.transform.localPosition;
+			
+			if(player1.pMotion == MotionType.WALK && player1.can_swipe) // sliding
 			{
-				gameManager.P1Sliding(false);			
-				is_left_clckd = false;
-				if(is_right_clckd)
-					is_right_clckd = false;
+				Debug.Log("sliding!");
+				if(paddlePos.x < -15)
+				{
+					gameManager.P1Sliding(false);
+				}
+				else if(paddlePos.x > 15)
+				{
+					gameManager.P1Sliding(true);
+				}
 			}
-			else if(gesture.Selection == bt_right && !is_right_clckd)
+			else if(player1.pMotion == MotionType.JUMP) // spiking
 			{
-				//gameManager.TmpP1Walking(false);
-				touchEvent = TouchEvent.RIGHT;
-				sprite_bt_right.SetSprite("bubble_orange");
-				is_touching = true;
-				touched_time = Time.time;
-				is_right_clckd = true;
-				if(is_left_clckd)
-					is_left_clckd = false;
+				float angle = GetAngleFromZeroPoint(paddlePos);//Vector2.Angle(Vector2.zero, new Vector2(paddlePos.x, paddlePos.y));
+				Debug.Log(angle);
+				if(angle >= 35 && angle < 145 && paddlePos.y >= 15) // upper spike
+				{
+					gameManager.P1Spiking(SpikeType.HIGH, false);
+					Debug.Log("HHHHHHHHHHHHHHHHH " + angle);
+				}
+				else if((angle < 35 && angle >= 0) || (angle < 0 && angle >= -35) || (angle >=145 && angle <= 180) ||(angle >= -180 && angle < -145)) // middle spike
+				{
+					gameManager.P1Spiking(SpikeType.MID, false);
+					Debug.Log("MMMMMMMMMMMMMMMMM" + angle);
+				}
+				else if(angle >= -145 && angle < -35 && paddlePos.y <= -10) // lower spike
+				{
+					gameManager.P1Spiking(SpikeType.LOW, false);
+					Debug.Log("LLLLLLLLLLLLLLLLL" + angle);
+				}
 			}
-			else if(gesture.Selection == bt_right && is_right_clckd && Time.time - touched_time < 0.65f)
-			{
-				gameManager.P1Sliding(true);
-				is_right_clckd = false;
-				if(is_left_clckd)
-					is_left_clckd = false;
-			}
-			else 	
-				return;
-	}*/
+		}
+	}
 	
 	void OnSwipe(SwipeGesture gesture)
 	{
@@ -400,6 +450,48 @@ public class TouchManager : MonoBehaviour
 				gameManager.P1Spiking(SpikeType.MID, false);
 			}
 		}
+	}
+	
+	Vector3 SetJoyPaddlePos(Vector3 touch_pos)
+	{
+		if(controller != TouchControllerType.JOYPAD)
+			return Vector3.zero;
+		
+		SphereCollider joystick_bg_col = joystick_bg.collider as SphereCollider;
+		float maxDist = joystick_bg_col.radius + 30;
+		float nowDist = Vector2.Distance(Vector2.zero, new Vector2(touch_pos.x, touch_pos.y));
+		
+		if(nowDist < maxDist)
+			return touch_pos;
+		
+		float ret_x = touch_pos.x * maxDist / nowDist;
+		float ret_y = touch_pos.y * maxDist / nowDist;
+		Debug.Log(new Vector3(ret_x, ret_y, -3) + "sss");
+		return new Vector3(ret_x, ret_y, -3);
+	}
+	
+	void SetJoyPadPos()
+	{
+		if(controller != TouchControllerType.JOYPAD)
+			return;
+		
+		GameObject Joypad = GameObject.Find("JoyPad");
+		
+		if(is_right_user)
+		{
+			Joypad.transform.localPosition = new Vector3(-130,-50,0);
+			bt_spike.transform.localPosition = new Vector3(305, -60, -1);
+		}
+		else
+		{
+			Joypad.transform.localPosition = new Vector3(130,0-50,0);
+			bt_spike.transform.localPosition = new Vector3(-305, -60, -1);
+		}
+	}
+	
+	float GetAngleFromZeroPoint(Vector3 pos)
+	{
+		return Mathf.Atan2(pos.y,pos.x) * 180 / Mathf.PI;
 	}
 	
 	/*void OnFingerDown(FingerDownEvent e)

@@ -82,9 +82,28 @@ public class GameManager : MonoBehaviour
 		is_P1_vel_changed = false;
 	}
 	
-	public void UpdateP1Walking()
+	public void JoypadP1Walking(bool isLeft)
 	{
-		if(P1.pMotion != MotionType.SLIDE && TouchManager.controller == TouchControllerType.BUTTON)
+		if(P1.pMotion == MotionType.SLIDE)
+			return;
+		if(TouchManager.controller == TouchControllerType.JOYPAD)
+		{
+			if(isLeft)
+			{
+				P1.vel_x = -P1.walking_speed;
+			}
+			else
+			{
+				P1.vel_x = P1.walking_speed;
+			}
+		}
+	}
+	
+	public void ButtonP1Walking()
+	{
+		if(P1.pMotion == MotionType.SLIDE)
+			return;
+		if(TouchManager.controller == TouchControllerType.BUTTON)
 		{
 			if(TouchManager.touchEvent == TouchEvent.LEFT)
 			{
@@ -101,22 +120,21 @@ public class GameManager : MonoBehaviour
 		}
 	}
 	
-	public void P1Walking(float movePos)
+	public void FrameP1Walking(float movePos)
 	{
-		//float velx, vely;
-		//velx = P1.vel_x;
-		//vely = P1.vel_y;
-		int sign;	// the sign means + or -
-		if(movePos - 5 > P1.player.transform.localPosition.x)
-			sign = 1;
-		else if(movePos + 5 < P1.player.transform.localPosition.x)
-			sign = -1;
-		else sign = 0;
-		if(P1.can_swipe)
-			P1.vel_x = sign * P1.walking_speed;
-		//if(velx != P1.vel_x || vely != P1.vel_y)
-		//	is_P1_vel_changed = true;
-		//MakeP1Info();
+		if(P1.pMotion == MotionType.SLIDE)
+			return;
+		if(TouchManager.controller == TouchControllerType.FRAME)
+		{
+			int sign;	// the sign means + or -
+			if(movePos - 5 > P1.player.transform.localPosition.x)
+				sign = 1;
+			else if(movePos + 5 < P1.player.transform.localPosition.x)
+				sign = -1;
+			else sign = 0;
+			if(P1.can_swipe)
+				P1.vel_x = sign * P1.walking_speed;	
+		}
 	}
 	
 	public void P1Jumping()
@@ -301,7 +319,7 @@ public class GameManager : MonoBehaviour
 	// Update is called once per frame
 	void FixedUpdate () 
 	{
-		UpdateP1Walking();
+		ButtonP1Walking();
 		frame_count = frame_count + 1;
 		gameTime += Time.deltaTime;
 		if((P1vel_x != P1.vel_x || P1vel_y < P1.vel_y))// || P1loc_x != P1.transform.localPosition.x))
