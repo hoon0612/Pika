@@ -1,0 +1,17 @@
+package Pika.Lobby.Join;
+
+message JoinRequest {
+
+  enum JoinType {
+    RAND_MATCH   = 0;
+    FRIEND_MATCH = 1; // not implenebted yet
+  }
+
+  required JoinType joinType = 1;
+}
+
+message JoinResponse {
+  required fixed32  ip = 1;
+  required uint32 port = 2;
+  required string room = 3;
+}

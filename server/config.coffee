@@ -1,0 +1,5 @@
+module.exports =
+    GAME_PORT: 5569
+    MATCH_PORT: 5568
+    MAIN_PORT: 5567
+    RETRY_INTERVAL: 3000

@@ -1,0 +1,19 @@
+package Pika.Lobby;
+
+import "Lobby.Join.proto";
+
+enum ProtocolType {
+  JOIN_MATCH = 0;
+}
+
+message LobbyRequest {
+  required ProtocolType type            = 1;
+  optional Join.JoinRequest joinRequest = 2;
+  required string sessionID             = 3;
+}
+
+message LobbyResponse {
+  required uint32 error_code              = 1 [default=0]; // no error = 0
+  required ProtocolType type              = 2;
+  optional Join.JoinResponse joinResponse = 3;
+}
