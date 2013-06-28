@@ -1,0 +1,6 @@
+package Pika.Game.Start;
+
+
+message StartProtocol{
+  required int32 delay = 1; // in milli second ( ms )
+}

@@ -1,0 +1,15 @@
+package Pika.Game;
+
+import "Game.Start.proto";
+import "Game.Control.proto";
+
+enum ProtocolType {
+  GAME_START   = 0;
+  GAME_CONTROL = 1;
+}
+
+message GameProtocol{
+  required ProtocolType    type            = 1;
+  optional StartProtocol   startProtocol   = 2;
+  optional ControlProtocol controlProtocol = 3;
+}

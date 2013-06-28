@@ -1,6 +1,6 @@
-package Pika.Game; 
+package Pika.Game.Control; 
 
-message Control {
+message ControlProtocol {
   message Status {
     required float loc_x = 1;
     required float loc_y = 2;
