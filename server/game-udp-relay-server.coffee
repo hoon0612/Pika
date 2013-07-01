@@ -1,7 +1,9 @@
 ProtoBuf = require "protobufjs"
-builder  = ProtoBuf.protoFromFile "../protocol/Control.proto"
-Pika     = builder.build "Pika"
-Control  = Pika.Game.Control
+builder  = ProtoBuf.protoFromFile "../protocol/Game.proto"
+Pika       = builder.build "Pika"
+GameProtocol  = Pika.Game
+gp = GameProtocol
+        
 ByteBuffer = require "bytebuffer"
 Config   = require "./config"    
 
@@ -57,7 +59,7 @@ server.on "message", (msg, rinfo) ->
 
     try
         
-        myMessage = Control.decode(buf)
+        myMessage = gp.Control.decode(buf)
 
     catch e
 
