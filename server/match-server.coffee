@@ -37,7 +37,7 @@ get_game_server = ->
 
 game_server = net.createServer (socket) ->
 
-    socket.setEncoding('ascii')
+    socket.setEncoding('binary')
 
     console.log socket.address()['address']
 
@@ -79,9 +79,11 @@ str2hex = (s) ->
 
 match_server = net.createServer (socket) ->
 
-    socket.setEncoding('ascii')
+    socket.setEncoding('binary')
+    
 
     console.log socket.address()['address']
+
         
     socket.on 'data', (data) ->
 
@@ -92,7 +94,7 @@ match_server = net.createServer (socket) ->
         console.log response.encode().toBuffer().toString('binary').length
 
         buf = response.encode().toBuffer().toString('binary')
-        socket.write buf
+        socket.write buf, 'binary'
     
     socket.on 'end', () ->
         console.log 'client disconnected'
