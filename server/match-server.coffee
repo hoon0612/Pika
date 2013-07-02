@@ -37,6 +37,8 @@ get_game_server = ->
 
 game_server = net.createServer (socket) ->
 
+    socket.setEncoding('ascii')
+
     console.log socket.address()['address']
 
     socket.on 'data', (data) ->
@@ -71,18 +73,23 @@ join_handler = (request) ->
                 port : server_info.port
                 room : "something random key"
 
+
+str2hex = (s) ->
+    [k.charCodeAt(0).toString(16) for k in s].join(" ")
+
 match_server = net.createServer (socket) ->
 
-    console.log socket.address()['address']
+    socket.setEncoding('ascii')
 
+    console.log socket.address()['address']
         
     socket.on 'data', (data) ->
 
         request = lp.LobbyRequest.decode(new Buffer(data.toString(), 'binary'))
 
         response = join_handler request
-
-        console.log response
+    
+        console.log response.encode().toBuffer().toString('binary').length
 
         buf = response.encode().toBuffer().toString('binary')
         socket.write buf
