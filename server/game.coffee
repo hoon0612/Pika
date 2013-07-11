@@ -48,13 +48,11 @@ add_client = (rinfo, key) ->
 
         console.log "[+] Num of client(s) : #{ clients.length }  "
     
-        return clients[ clients.length - 1 ]
-    
     else
-        
+    
         console.log "[+] Too much clients"
-        
-        return undefined
+
+    return clients.length
 
 server.on "message", (msg, rinfo) ->
 
@@ -64,7 +62,7 @@ server.on "message", (msg, rinfo) ->
 
     try
         
-        myMessage = gp.Control.decode(buf)
+        myMessage = gp.GameProtocol.decode(buf)
 
     catch e
 
@@ -74,29 +72,32 @@ server.on "message", (msg, rinfo) ->
             console.log "something is weird"
 
 
-    if myMessage.type == gp.ProtocolType.GAME_REGISTER
+    if myMessage.type == gp.ProtocolType.GAME_REGISTER_REQUEST
 
         client = lookup_client rinfo
 
         if client == undefined
             num_clients = add_client rinfo
 
-        
-
     else if myMessage.type == gp.ProtocolType.GAME_CONTROL
+
+        client = lookup_client rinfo
+
+        if client == undefined
+            return
+        else
+            enemy = enemy_client client
+
+            if enemy != undefined
+    
+                server.send msg, 0, msg.length, enemy.port, enemy.address, (err, bytes) ->
+                    console.log "sent #{bytes} bytes of data"
+
         console.log "Control"
+    
     else
         console.log "Error"
         
-    if client == undefined
-        enemy = undefined
-    else
-        enemy = enemy_client client
-
-    if enemy != undefined
-    
-        server.send msg, 0, msg.length, enemy.port, enemy.address, (err, bytes) ->
-            console.log "sent #{bytes} bytes of data"
 
 connected = true
 

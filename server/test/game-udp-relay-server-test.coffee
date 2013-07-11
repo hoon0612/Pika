@@ -1,9 +1,10 @@
 ProtoBuf = require "protobufjs"
-builder  = ProtoBuf.protoFromFile "../../protocol/Control.proto"
+builder  = ProtoBuf.protoFromFile "../../protocol/Game.proto"
 Pika     = builder.build("Pika");
-Control  = Pika.Game.Control
+GameProtocol  = Pika.Game
+gp = GameProtocol
 
-PORT = 5567
+PORT = 5569
 
 dgram = require 'dgram'
 
@@ -13,31 +14,41 @@ stdin = process.stdin
 
 stdin.setRawMode true
 stdin.resume()
+stdin.setEncoding 'utf8'
 
 console.log "[+] udp-server test\n"
 
 stdin.on 'data', (key) ->
 
-    if key == 'q'
-        client.close()
+    if key == '\u0003'
+    	process.exit();
     
-    myMessage = new Control
-        "id": "Hello"
-        "time": 56
-        "Character" :
-            "loc_x": 4.1
-            "loc_y": 4.3
-            "vel_x": 4.5
-            "vel_y": 4.7
-        "Ball" :
-            "loc_x": 4.1
-            "loc_y": 4.3
-            "vel_x": 4.5
-            "vel_y": 4.7
-    
+    register = new gp.GameProtocol
+        "type" : gp.ProtocolType.GAME_REGISTER_REQUEST
 
 
-    buf = myMessage.encode().toBuffer()
+    buf = register.encode().toBuffer()
+
+    client.send buf, 0, buf.length, PORT, "localhost", (err, bytes) ->
+        console.log "Register Data!\n"
+
+    control = new gp.GameProtocol
+        "type": gp.ProtocolType.GAME_CONTROL
+        "controlProtocol" :
+            "id": "Hello"
+            "time": 56
+            "Character" :
+                "loc_x": 4.1
+                "loc_y": 4.3
+                "vel_x": 4.5
+                "vel_y": 4.7
+            "Ball" :
+                "loc_x": 4.1
+                "loc_y": 4.3
+                "vel_x": 4.5
+                "vel_y": 4.7
+    
+    buf = control.encode().toBuffer()
 
     client.send buf, 0, buf.length, PORT, "localhost", (err, bytes) ->
         console.log "Sent Data!\n"
