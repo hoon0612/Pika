@@ -1,0 +1,11 @@
+package Pika.Game.Register; 
+
+message RegisterRequest {
+  required string id  = 1;  // user session
+  required string key = 2;  // room key
+}
+
+message RegisterResponse {
+  required string id  = 1;  // user session
+  required string key = 2;  // room key
+}

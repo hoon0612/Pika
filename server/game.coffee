@@ -1,17 +1,22 @@
 ProtoBuf = require "protobufjs"
 builder  = ProtoBuf.protoFromFile "../protocol/Game.proto"
+ProtoBuf.protoFromFile "../protocol/Match.proto", builder    
 Pika       = builder.build "Pika"
 GameProtocol  = Pika.Game
+MatchProtocol = Pika.Match
 gp = GameProtocol
+mp = MatchProtocol    
+    
+inet       = require "inet"    
         
 ByteBuffer = require "bytebuffer"
 Config   = require "./config"    
 
 net   = require 'net'
 dgram = require 'dgram'
-
+        
 server = dgram.createSocket 'udp4'
-
+        
 clients = new Array()
 
 lookup_client = (rinfo) ->
@@ -34,7 +39,7 @@ enemy_client = (rinfo) ->
     
     return result
 
-add_client = (rinfo) ->
+add_client = (rinfo, key) ->
 
     if clients.length < 2
         clients.push
@@ -68,12 +73,20 @@ server.on "message", (msg, rinfo) ->
         else
             console.log "something is weird"
 
-    client = lookup_client rinfo
 
-    if client == undefined
-        client = add_client rinfo
+    if myMessage.type == gp.ProtocolType.GAME_REGISTER
 
-    # client == undefined if add_client failed
+        client = lookup_client rinfo
+
+        if client == undefined
+            num_clients = add_client rinfo
+
+        
+
+    else if myMessage.type == gp.ProtocolType.GAME_CONTROL
+        console.log "Control"
+    else
+        console.log "Error"
         
     if client == undefined
         enemy = undefined
@@ -94,12 +107,22 @@ connect_to_match_server = () ->
         , ->
             connected = true
             console.log '[+] Match server connected'
-            match_server.write 'ping'
 
+            #ip = get_ipaddress() 
+
+            request = new mp.MatchProtocol
+                type : mp.ProtocolType.MATCH_SERVERREGISTER
+                registerProtocol :
+                    ip   : 0 #inet.aton(server.address().address)
+                    port : server.address().port
+
+            buf = request.encode().toBuffer().toString('binary')
+            match_server.write buf, 'binary'
+    
             match_server.on 'data', (data) ->
     
                 dataStr = data.toString()
-    
+     
                 if dataStr == 'pong'
                     console.log '[+] Match server ready\n'
 

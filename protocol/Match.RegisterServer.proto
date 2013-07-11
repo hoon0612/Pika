@@ -1,0 +1,6 @@
+package Pika.Match.RegisterServer;
+
+message RegisterProtocol {
+  required fixed32  ip = 1;
+  required uint32 port = 2;
+}

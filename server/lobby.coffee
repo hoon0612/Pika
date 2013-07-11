@@ -1,11 +1,14 @@
-# TODO LIST
-# 1. Connection with gameserver
-# 2. 
-        
+# TODO : Split lobby.coffee to lobby.coffee and match.coffee
+
 ProtoBuf    = require "protobufjs"
 builder     = ProtoBuf.protoFromFile "../protocol/Lobby.proto"
-lobby_proto = builder.build "Pika.Lobby"
-lp          = lobby_proto    
+ProtoBuf.protoFromFile "../protocol/Match.proto", builder
+
+Pika       = builder.build "Pika"
+LobbyProtocol = Pika.Lobby
+MatchProtocol = Pika.Match
+lp = LobbyProtocol
+mp = MatchProtocol    
         
 ByteBuffer = require "bytebuffer"
 inet       = require "inet"    
@@ -15,15 +18,17 @@ net = require 'net'
 
 game_servers = new Array()
 
-add_game_server = (rinfo) ->
+add_game_server = (ip, port) ->
 
     result = undefined
-    result = server for server in game_servers when (server.address == rinfo.address and server.port == rinfo.port)
+    result = server for server in game_servers when (server.address == ip and server.port == port)
 
     if result == undefined
+        console.log ip
+        console.log port
         game_servers.push
-            "port": rinfo.port
-            "address": rinfo.address
+            "address": ip
+            "port": port
 
 get_game_server = ->
 
@@ -43,11 +48,16 @@ game_server = net.createServer (socket) ->
 
     socket.on 'data', (data) ->
 
-        strData = data.toString()
+        request = mp.MatchProtocol.decode(new Buffer(data.toString(), 'binary'))
 
-        if strData == "ping" or strData == "ping\n"
-            add_game_server socket.address()
-            socket.write "pong"
+        if request.type == mp.ProtocolType.MATCH_SERVERREGISTER
+            add_game_server inet.aton(socket.address().address) , request.registerProtocol.port
+
+            request = new mp.MatchProtocol
+                type : mp.ProtocolType.MATCH_REGISTEROK
+
+            buf = request.encode().toBuffer().toString('binary')
+            socket.write buf, 'binary'
         
     socket.on 'end', () ->
         console.log 'server disconnected'
@@ -64,12 +74,12 @@ join_handler = (request) ->
             type : lp.ProtocolType.JOIN_MATCH
         
     else
-    
+        
         response = new lp.LobbyResponse
             error_code : 0
             type : lp.ProtocolType.JOIN_MATCH
             joinResponse : 
-                ip   : inet.aton(server_info.address)
+                ip   : server_info.address
                 port : server_info.port
                 room : "something random key"
 
@@ -88,11 +98,8 @@ match_server = net.createServer (socket) ->
     socket.on 'data', (data) ->
 
         request = lp.LobbyRequest.decode(new Buffer(data.toString(), 'binary'))
-
         response = join_handler request
-    
-        console.log response.encode().toBuffer().toString('binary').length
-
+        
         buf = response.encode().toBuffer().toString('binary')
         socket.write buf, 'binary'
     

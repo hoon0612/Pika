@@ -1,0 +1,17 @@
+package Pika.Match;
+
+import "Match.NewRoom.proto";
+import "Match.RegisterServer.proto";
+
+enum ProtocolType {
+  MATCH_NEWROOM  = 0;
+  MATCH_SERVERREGISTER = 1;
+  MATCH_REGISTEROK = 2;
+}
+
+message MatchProtocol{
+  required ProtocolType  type                                    = 1;
+  optional RegisterServer.RegisterProtocol    registerProtocol   = 2;
+  optional NewRoom.NewRoomRequest   newRoomRequest   = 3;
+  optional NewRoom.NewRoomResponse  newRoomResponse  = 4;
+}

@@ -1,0 +1,10 @@
+package Pika.Match.NewRoom;
+
+message NewRoomRequest {
+  required string salt = 1;
+}
+
+message NewRoomResponse {
+  required string secretKey = 1;
+}
+
