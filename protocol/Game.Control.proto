@@ -21,5 +21,6 @@ message ControlProtocol {
   required int32 time = 2;
   optional Status Character  = 3;
   optional Status Ball = 4;
-  required MotionType motion = 5 [ default=WALK ]; 
+  required MotionType motion = 5 [ default=WALK ];
+  required string key = 6; // room key
 }

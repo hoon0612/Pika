@@ -10,50 +10,16 @@ mp = MatchProtocol
 inet       = require "inet"    
         
 ByteBuffer = require "bytebuffer"
-Config   = require "./config"    
+Config     = require "./config"
 
-net   = require 'net'
-dgram = require 'dgram'
-        
+net    = require 'net'
+dgram  = require 'dgram'
+
+libClients  = require './game.clients'
+Clients = new libClients()
+
 server = dgram.createSocket 'udp4'
         
-clients = new Array()
-
-lookup_client = (rinfo) ->
-
-    result = undefined
-    result = client for client in clients when (client.address == rinfo.address and client.port == rinfo.port)
-
-    if result == undefined
-        return undefined
-
-    return result
-
-enemy_client = (rinfo) ->
-
-    result = undefined
-    result = client for client in clients when (client.address != rinfo.address or client.port != rinfo.port)
-    
-    if result == undefined
-        return undefined
-    
-    return result
-
-add_client = (rinfo, key) ->
-
-    if clients.length < 2
-        clients.push
-            "port": rinfo.port
-            "address": rinfo.address
-
-        console.log "[+] Num of client(s) : #{ clients.length }  "
-    
-    else
-    
-        console.log "[+] Too much clients"
-
-    return clients.length
-
 server.on "message", (msg, rinfo) ->
 
     console.log "server got: #{ msg }(#{ msg.length } bytes) from #{ rinfo.address }:#{ rinfo.port }"
@@ -74,19 +40,42 @@ server.on "message", (msg, rinfo) ->
 
     if myMessage.type == gp.ProtocolType.GAME_REGISTER_REQUEST
 
-        client = lookup_client rinfo
+        key    = myMessage.registerRequest.key
+
+        client = Clients.lookup_client rinfo, key
+
+        console.log "[*] client : " + client
 
         if client == undefined
-            num_clients = add_client rinfo
+            num_clients = Clients.add_client rinfo, key
+
+            console.log "[+] Client added : " + num_clients
+
+            if num_clients == 2
+                client_list = Clients.get_clients key
+
+                for client in client_list
+
+                    request = new gp.GameProtocol
+                        type : gp.ProtocolType.GAME_START
+                        startProtocol :
+                            delay : 5000
+    
+                    buf = request.encode().toBuffer()
+
+                    server.send buf, 0, buf.length, client.port, client.address, (err, bytes) ->
+                        console.log "Start game!\n"
 
     else if myMessage.type == gp.ProtocolType.GAME_CONTROL
 
-        client = lookup_client rinfo
+        key    = myMessage.controlProtocol.key
+
+        client = Clients.lookup_client rinfo, key
 
         if client == undefined
             return
         else
-            enemy = enemy_client client
+            enemy = Clients.enemy_client client, key
 
             if enemy != undefined
     

@@ -16,6 +16,8 @@ stdin.setRawMode true
 stdin.resume()
 stdin.setEncoding 'utf8'
 
+room_key = "test"        
+
 console.log "[+] udp-server test\n"
 
 stdin.on 'data', (key) ->
@@ -25,7 +27,9 @@ stdin.on 'data', (key) ->
     
     register = new gp.GameProtocol
         "type" : gp.ProtocolType.GAME_REGISTER_REQUEST
-
+        "registerRequest" :
+            "key": room_key
+            "id" : "test1"
 
     buf = register.encode().toBuffer()
 
@@ -47,9 +51,9 @@ stdin.on 'data', (key) ->
                 "loc_y": 4.3
                 "vel_x": 4.5
                 "vel_y": 4.7
+            "key" : room_key
     
     buf = control.encode().toBuffer()
-
     client.send buf, 0, buf.length, PORT, "localhost", (err, bytes) ->
         console.log "Sent Data!\n"
 
